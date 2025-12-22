@@ -7,7 +7,7 @@ from models.user_role import UserRole
 
 class UserCreate(BaseModel):
     name: str
-    password_hash: str
+    password: str
     email: str
     phone: str
     role: UserRole

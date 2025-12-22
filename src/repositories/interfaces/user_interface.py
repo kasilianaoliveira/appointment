@@ -3,8 +3,8 @@ from uuid import UUID
 
 from fastapi_pagination import Page, Params
 
-from models.user_model import UserModel
-from schemas.user_schema import UserCreate
+from models import UserModel
+from schemas import UserCreate
 
 
 class IUserRepository(ABC):

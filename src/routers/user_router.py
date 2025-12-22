@@ -5,10 +5,9 @@ from fastapi import APIRouter, Depends, status
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_pagination import Page, Params
 
-from enums.user_date_filter import UserDateFilter
-from models.user_model import UserModel
-from schemas.token_schema import TokenSchema
-from schemas.user_schema import UserCreate, UserRead, UserUpdate
+from enums import UserDateFilter
+from models import UserModel
+from schemas import TokenSchema, UserCreate, UserRead, UserUpdate
 from services.auth_dependencies import get_current_user, require_admin_user
 from services.auth_service import AuthService, get_auth_service
 from services.user_service import UserService, get_user_service

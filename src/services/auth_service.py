@@ -7,10 +7,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from core.db.dependencies import get_session
 from core.security import create_access_token, verify_password
 from core.settings import get_settings
-from models.user_model import UserModel
+from models import UserModel
 from repositories.interfaces.user_interface import IUserRepository
 from repositories.user_repository import UserRepository
-from schemas.token_schema import TokenSchema
+from schemas import TokenSchema
 
 settings = get_settings()
 

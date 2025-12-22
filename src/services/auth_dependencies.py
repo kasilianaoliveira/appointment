@@ -3,8 +3,8 @@ from typing import Annotated
 from fastapi import Depends, HTTPException
 
 from core.security import oauth2_scheme
-from enums.user_role import UserRole
-from models.user_model import UserModel
+from enums import UserRole
+from models import UserModel
 from services.auth_service import AuthService, get_auth_service
 
 

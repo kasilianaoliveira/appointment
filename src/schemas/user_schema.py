@@ -2,7 +2,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from enums.user_role import UserRole
+from enums import UserRole
 
 
 class UserCreate(BaseModel):

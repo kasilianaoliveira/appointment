@@ -6,11 +6,10 @@ from fastapi_pagination.ext.sqlalchemy import paginate
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from enums.user_date_filter import UserDateFilter
-from enums.user_role import UserRole
-from models.user_model import UserModel
+from enums import UserDateFilter, UserRole
+from models import UserModel
 from repositories.interfaces.user_interface import IUserRepository
-from schemas.user_schema import UserCreate
+from schemas import UserCreate
 
 
 class UserRepository(IUserRepository):

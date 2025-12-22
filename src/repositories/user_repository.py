@@ -44,6 +44,17 @@ class UserRepository(IUserRepository):
         )
         return result.scalar_one_or_none()
 
+    async def update(self, user: UserModel) -> UserModel:
+        self.session.add(user)
+        await self.session.commit()
+        await self.session.refresh(user)
+        return user
+
+    async def delete(self, user: UserModel) -> None:
+
+        await self.session.delete(user)
+        await self.session.commit()
+
     async def get_all_clients(
         self,
         params: Params,

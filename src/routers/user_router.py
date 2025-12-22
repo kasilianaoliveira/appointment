@@ -8,7 +8,7 @@ from fastapi_pagination import Page, Params
 from enums.user_date_filter import UserDateFilter
 from models.user_model import UserModel
 from schemas.token_schema import TokenSchema
-from schemas.user_schema import UserCreate, UserRead
+from schemas.user_schema import UserCreate, UserRead, UserUpdate
 from services.auth_dependencies import get_current_user, require_admin_user
 from services.auth_service import AuthService, get_auth_service
 from services.user_service import UserService, get_user_service
@@ -29,6 +29,25 @@ async def create_user(
     service: Annotated[UserService, Depends(get_user_service)],
 ):
     return await service.create_user(user)
+
+
+@protected_user_router.put(
+    "/{id}", response_model=UserRead, status_code=status.HTTP_200_OK
+)
+async def update_user(
+    id: UUID,
+    user: UserUpdate,
+    service: Annotated[UserService, Depends(get_user_service)],
+):
+    return await service.update_user(id, user)
+
+
+@protected_user_router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_user(
+    id: UUID,
+    service: Annotated[UserService, Depends(get_user_service)],
+):
+    return await service.delete_user(id)
 
 
 @user_public_router.post(

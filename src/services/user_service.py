@@ -13,7 +13,7 @@ from enums.user_date_filter import UserDateFilter
 from models.user_model import UserModel
 from repositories.interfaces.user_interface import IUserRepository
 from repositories.user_repository import UserRepository
-from schemas.user_schema import UserCreate
+from schemas.user_schema import UserCreate, UserUpdate
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +33,31 @@ class UserService:
         user.password_hash = get_password_hash(user.password_hash)
 
         return await self.user_repository.save(user)
+
+    async def update_user(self, id: UUID, user: UserUpdate) -> UserModel:
+        existing_user = await self.user_repository.get_by_id(id)
+        # TODO: ADICIONAR ERRO PERSONALIZADO PARA TODOS OS CASOS MAIS UTILIZADOS
+        if not existing_user:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        if user.name is not None:
+            existing_user.name = user.name
+
+        if user.email is not None:
+            existing_user.email = user.email
+
+        if user.phone is not None:
+            existing_user.phone = user.phone
+
+        return await self.user_repository.update(existing_user)
+
+    async def delete_user(self, id: UUID) -> None:
+        existing_user = await self.user_repository.get_by_id(id)
+        # TODO: ADICIONAR ERRO PERSONALIZADO PARA TODOS OS CASOS MAIS UTILIZADOS
+        if not existing_user:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        return await self.user_repository.delete(existing_user)
 
     async def get_user_by_email(self, email: str) -> UserModel | None:
 

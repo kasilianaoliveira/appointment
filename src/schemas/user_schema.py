@@ -22,3 +22,9 @@ class UserRead(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class UserUpdate(BaseModel):
+    name: str | None = None
+    email: str | None = None
+    phone: str | None = None

@@ -20,7 +20,7 @@ class UserRepository(IUserRepository):
 
         user = UserModel(
             name=data.name,
-            password_hash=data.password_hash,
+            password_hash=data.password,
             email=data.email,
             phone=data.phone,
             role=data.role,

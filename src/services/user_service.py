@@ -37,7 +37,7 @@ class UserService:
             )
 
         logger.info(f"Creating user: {user}")
-        user.password_hash = get_password_hash(user.password_hash)
+        user.password = get_password_hash(user.password)
 
         return await self.user_repository.save(user)
 

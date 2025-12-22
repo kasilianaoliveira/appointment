@@ -5,27 +5,25 @@ from fastapi import APIRouter, Depends, status
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_pagination import Page, Params
 
-from core.security import oauth2_scheme
+from enums.user_date_filter import UserDateFilter
 from models.user_model import UserModel
 from schemas.token_schema import TokenSchema
 from schemas.user_schema import UserCreate, UserRead
+from services.auth_dependencies import get_current_user, require_admin_user
 from services.auth_service import AuthService, get_auth_service
 from services.user_service import UserService, get_user_service
 
-router = APIRouter(prefix="/users", tags=["Users"])
+user_public_router = APIRouter(prefix="/users", tags=["Users"])
 
 
-async def get_current_user(
-    token: Annotated[str, Depends(oauth2_scheme)],
-    service: Annotated[AuthService, Depends(get_auth_service)],
-) -> UserModel:
-    """
-    Extrai o token do header Authorization e retorna o usuário autenticado.
-    """
-    return await service.get_current_user(token)
+protected_user_router = APIRouter(
+    prefix="/users", tags=["Users"], dependencies=[Depends(get_current_user)]
+)
 
 
-@router.post("/", response_model=UserRead, status_code=status.HTTP_201_CREATED)
+@user_public_router.post(
+    "/", response_model=UserRead, status_code=status.HTTP_201_CREATED
+)
 async def create_user(
     user: UserCreate,
     service: Annotated[UserService, Depends(get_user_service)],
@@ -33,7 +31,7 @@ async def create_user(
     return await service.create_user(user)
 
 
-@router.post(
+@user_public_router.post(
     "/login",
     response_model=TokenSchema,
     status_code=status.HTTP_200_OK,
@@ -50,7 +48,9 @@ async def login(
     return token_data
 
 
-@router.get("/me", response_model=UserRead, status_code=status.HTTP_200_OK)
+@protected_user_router.get(
+    "/me", response_model=UserRead, status_code=status.HTTP_200_OK
+)
 async def get_me(
     current_user: Annotated[UserModel, Depends(get_current_user)],
 ):
@@ -58,7 +58,7 @@ async def get_me(
     return current_user
 
 
-@router.get(
+@protected_user_router.get(
     "/detail/{id}",
     response_model=UserRead,
     status_code=status.HTTP_200_OK,
@@ -70,9 +70,15 @@ async def get_user_by_id(
     return await service.get_user_by_id(id)
 
 
-@router.get("/", response_model=Page[UserRead], status_code=status.HTTP_200_OK)
+@protected_user_router.get(
+    "/", response_model=Page[UserRead], status_code=status.HTTP_200_OK
+)
 async def get_all_clients(
     params: Annotated[Params, Depends()],
     service: Annotated[UserService, Depends(get_user_service)],
+    _: Annotated[UserModel, Depends(require_admin_user)],
+    name: str | None = None,
+    email: str | None = None,
+    date_filter: UserDateFilter | None = None,
 ):
-    return await service.get_all_clients(params)
+    return await service.get_all_clients(params, name, email, date_filter)

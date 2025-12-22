@@ -6,7 +6,7 @@ from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from core.db.base import Base
-from models.user_role import UserRole
+from enums.user_role import UserRole
 
 
 class UserModel(Base):

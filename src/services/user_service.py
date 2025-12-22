@@ -1,14 +1,17 @@
 import logging
 from uuid import UUID
 
-from fastapi import HTTPException
+from fastapi import Depends, HTTPException
 from fastapi_pagination import Page
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from core.db.dependencies import get_session
 from core.security import (
     get_password_hash,
 )
 from models.user_model import UserModel
 from repositories.interfaces.user_interface import IUserRepository
+from repositories.user_repository import UserRepository
 from schemas.user_schema import UserCreate
 
 logger = logging.getLogger(__name__)
@@ -64,3 +67,8 @@ class UserService:
         logger.info(f"Users found: {existing_users}")
 
         return existing_users
+
+
+def get_user_service(db: AsyncSession = Depends(get_session)) -> UserService:
+    repo = UserRepository(db)
+    return UserService(repo)

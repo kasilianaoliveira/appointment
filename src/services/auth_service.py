@@ -1,12 +1,15 @@
 import logging
 
 import jwt
-from fastapi import HTTPException
+from fastapi import Depends, HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from core.db.dependencies import get_session
 from core.security import create_access_token, verify_password
 from core.settings import get_settings
 from models.user_model import UserModel
 from repositories.interfaces.user_interface import IUserRepository
+from repositories.user_repository import UserRepository
 from schemas.token_schema import TokenSchema
 
 settings = get_settings()
@@ -81,3 +84,8 @@ class AuthService:
         if current_user.disabled:
             raise HTTPException(status_code=400, detail="Inactive user")
         return current_user
+
+
+def get_auth_service(db: AsyncSession = Depends(get_session)) -> AuthService:
+    repo = UserRepository(db)
+    return AuthService(repo)

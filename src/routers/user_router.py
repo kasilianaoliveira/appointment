@@ -2,33 +2,17 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, status
 from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.db.dependencies import get_session
 from core.security import oauth2_scheme
 from models.user_model import UserModel
-from repositories.user_repository import UserRepository
 from schemas.token_schema import TokenSchema
 from schemas.user_schema import UserCreate, UserRead
-from services.auth_service import AuthService
-from services.user_service import UserService
+from services.auth_service import AuthService, get_auth_service
+from services.user_service import UserService, get_user_service
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
 
-# Factory para UserService
-def get_user_service(db: AsyncSession = Depends(get_session)) -> UserService:
-    repo = UserRepository(db)
-    return UserService(repo)
-
-
-# Factory para AuthService
-def get_auth_service(db: AsyncSession = Depends(get_session)) -> AuthService:
-    repo = UserRepository(db)
-    return AuthService(repo)
-
-
-# Dependência reutilizável para obter o usuário autenticado
 async def get_current_user(
     token: Annotated[str, Depends(oauth2_scheme)],
     service: Annotated[AuthService, Depends(get_auth_service)],

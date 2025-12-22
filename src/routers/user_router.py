@@ -47,7 +47,11 @@ async def create_user(
     return await service.create_user(user)
 
 
-@router.post("/login", response_model=TokenSchema)
+@router.post(
+    "/login",
+    response_model=TokenSchema,
+    status_code=status.HTTP_200_OK,
+)
 async def login(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     service: Annotated[AuthService, Depends(get_auth_service)],
@@ -60,7 +64,7 @@ async def login(
     return token_data
 
 
-@router.get("/me", response_model=UserRead)
+@router.get("/me", response_model=UserRead, status_code=status.HTTP_200_OK)
 async def get_me(
     current_user: Annotated[UserModel, Depends(get_current_user)],
 ):

@@ -24,16 +24,26 @@ def get_password_hash(password: str) -> str:
 def create_access_token(
     data: dict,
     expires_delta: timedelta | None = None,
-) -> str:
+) -> tuple[str, int]:
+    """
+    Cria um token JWT e retorna o token e o tempo de expiração em segundos.
+
+    Returns:
+        tuple[str, int]: (token, expires_in_seconds)
+    """
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
+        expires_in_seconds = int(expires_delta.total_seconds())
     else:
-        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+        expires_in_seconds = settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES * 60
+        expire = datetime.now(timezone.utc) + timedelta(
+            minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES
+        )
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(
         to_encode,
         settings.JWT_SECRET_KEY.get_secret_value(),
         algorithm=settings.JWT_ALGORITHM,
     )
-    return encoded_jwt
+    return encoded_jwt, expires_in_seconds

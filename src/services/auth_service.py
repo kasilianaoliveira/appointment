@@ -38,10 +38,14 @@ class AuthService:
             )
         logger.info(f"User authenticated: {existing_user}")
 
-        token = create_access_token(
+        token, expires_in = create_access_token(
             {"sub": str(existing_user.id)},
         )
-        return TokenSchema(access_token=token, token_type="bearer")
+        return TokenSchema(
+            access_token=token,
+            token_type="bearer",
+            expires_in=expires_in,
+        )
 
     async def get_current_user(
         self,

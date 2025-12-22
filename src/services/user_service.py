@@ -1,19 +1,24 @@
 import logging
 from uuid import UUID
 
-from fastapi import Depends, HTTPException
+from fastapi import Depends
 from fastapi_pagination import Page, Params
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.db.dependencies import get_session
+from core.exceptions import (
+    UserAlreadyExistsException,
+    UserNotFoundException,
+    UsersNotFoundException,
+)
 from core.security import (
     get_password_hash,
 )
-from enums.user_date_filter import UserDateFilter
-from models.user_model import UserModel
+from enums import UserDateFilter
+from models import UserModel
 from repositories.interfaces.user_interface import IUserRepository
 from repositories.user_repository import UserRepository
-from schemas.user_schema import UserCreate, UserUpdate
+from schemas import UserCreate, UserUpdate
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +32,9 @@ class UserService:
         existing_user = await self.user_repository.get_by_email(user.email)
 
         if existing_user:
-            raise HTTPException(status_code=400, detail="User already exists")
+            raise UserAlreadyExistsException(
+                detail=f"User with email {user.email} already exists"
+            )
 
         logger.info(f"Creating user: {user}")
         user.password_hash = get_password_hash(user.password_hash)
@@ -36,9 +43,9 @@ class UserService:
 
     async def update_user(self, id: UUID, user: UserUpdate) -> UserModel:
         existing_user = await self.user_repository.get_by_id(id)
-        # TODO: ADICIONAR ERRO PERSONALIZADO PARA TODOS OS CASOS MAIS UTILIZADOS
+
         if not existing_user:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise UserNotFoundException(detail=f"User with id {id} not found")
 
         if user.name is not None:
             existing_user.name = user.name
@@ -53,9 +60,9 @@ class UserService:
 
     async def delete_user(self, id: UUID) -> None:
         existing_user = await self.user_repository.get_by_id(id)
-        # TODO: ADICIONAR ERRO PERSONALIZADO PARA TODOS OS CASOS MAIS UTILIZADOS
+
         if not existing_user:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise UserNotFoundException(detail=f"User with id {id} not found")
 
         return await self.user_repository.delete(existing_user)
 
@@ -64,7 +71,9 @@ class UserService:
         existing_user = await self.user_repository.get_by_email(email)
 
         if not existing_user:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise UserNotFoundException(
+                detail=f"User with email {email} not found",
+            )
 
         logger.info(f"User email found: {existing_user}")
         return existing_user
@@ -73,7 +82,7 @@ class UserService:
         existing_user = await self.user_repository.get_by_id(id)
 
         if not existing_user:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise UserNotFoundException(detail=f"User with id {id} not found")
 
         logger.info(f"User id found: {existing_user}")
 
@@ -92,7 +101,9 @@ class UserService:
         )
 
         if not existing_users:
-            raise HTTPException(status_code=404, detail="Users not found")
+            raise UsersNotFoundException(
+                detail="No users found matching the provided criteria"
+            )
 
         logger.info(f"Users found: {existing_users}")
 

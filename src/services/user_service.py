@@ -9,6 +9,7 @@ from core.db.dependencies import get_session
 from core.security import (
     get_password_hash,
 )
+from enums.user_date_filter import UserDateFilter
 from models.user_model import UserModel
 from repositories.interfaces.user_interface import IUserRepository
 from repositories.user_repository import UserRepository
@@ -56,9 +57,14 @@ class UserService:
     async def get_all_clients(
         self,
         params: Params,
+        name: str | None = None,
+        email: str | None = None,
+        date_filter: UserDateFilter | None = None,
     ) -> Page[UserModel]:
 
-        existing_users = await self.user_repository.get_all_clients(params)
+        existing_users = await self.user_repository.get_all_clients(
+            params, name, email, date_filter
+        )
 
         if not existing_users:
             raise HTTPException(status_code=404, detail="Users not found")

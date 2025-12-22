@@ -21,5 +21,11 @@ class IUserRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_all_clients(self, params: Params) -> Page[UserModel]:
+    async def get_all_clients(
+        self,
+        params: Params,
+        name: str | None = None,
+        email: str | None = None,
+        date_filter: str | None = None,
+    ) -> Page[UserModel]:
         pass

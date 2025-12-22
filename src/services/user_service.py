@@ -2,7 +2,7 @@ import logging
 from uuid import UUID
 
 from fastapi import Depends, HTTPException
-from fastapi_pagination import Page
+from fastapi_pagination import Page, Params
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.db.dependencies import get_session
@@ -53,13 +53,12 @@ class UserService:
 
         return existing_user
 
-    async def get_all_users(
+    async def get_all_clients(
         self,
-        page: int = 1,
-        limit: int = 10,
+        params: Params,
     ) -> Page[UserModel]:
 
-        existing_users = await self.user_repository.get_all(page, limit)
+        existing_users = await self.user_repository.get_all_clients(params)
 
         if not existing_users:
             raise HTTPException(status_code=404, detail="Users not found")

@@ -1,11 +1,12 @@
 from uuid import UUID
 
-from fastapi_pagination import Page
+from fastapi_pagination import Page, Params
 from fastapi_pagination.ext.sqlalchemy import paginate
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from models.user_model import UserModel
+from models.user_role import UserRole
 from repositories.interfaces.user_interface import IUserRepository
 from schemas.user_schema import UserCreate
 
@@ -41,6 +42,10 @@ class UserRepository(IUserRepository):
         )
         return result.scalar_one_or_none()
 
-    async def get_all(self, page: int = 1, limit: int = 10) -> Page[UserModel]:
-        stmt = select(UserModel).order_by(UserModel.created_at)
-        return await paginate(self.session, stmt, page=page, limit=limit)
+    async def get_all_clients(self, params: Params) -> Page[UserModel]:
+        stmt = (
+            select(UserModel)
+            .order_by(UserModel.created_at)
+            .where(UserModel.role == UserRole.CLIENT)
+        )
+        return await paginate(self.session, stmt, params)

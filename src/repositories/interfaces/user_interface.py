@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from uuid import UUID
 
+from fastapi_pagination import Page, Params
+
 from models.user_model import UserModel
 from schemas.user_schema import UserCreate
 
@@ -19,5 +21,5 @@ class IUserRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_all(self, page: int = 1, limit: int = 10) -> list[UserModel]:
+    async def get_all_clients(self, params: Params) -> Page[UserModel]:
         pass

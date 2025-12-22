@@ -1,7 +1,9 @@
 from typing import Annotated
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, status
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi_pagination import Page, Params
 
 from core.security import oauth2_scheme
 from models.user_model import UserModel
@@ -54,3 +56,23 @@ async def get_me(
 ):
     """Retorna os dados do usuário autenticado."""
     return current_user
+
+
+@router.get(
+    "/detail/{id}",
+    response_model=UserRead,
+    status_code=status.HTTP_200_OK,
+)
+async def get_user_by_id(
+    id: UUID,
+    service: Annotated[UserService, Depends(get_user_service)],
+):
+    return await service.get_user_by_id(id)
+
+
+@router.get("/", response_model=Page[UserRead], status_code=status.HTTP_200_OK)
+async def get_all_clients(
+    params: Annotated[Params, Depends()],
+    service: Annotated[UserService, Depends(get_user_service)],
+):
+    return await service.get_all_clients(params)

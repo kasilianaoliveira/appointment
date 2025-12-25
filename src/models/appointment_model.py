@@ -4,11 +4,12 @@ from datetime import date, datetime
 from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
-from sqlalchemy import Date, DateTime, ForeignKey, func
+from sqlalchemy import Date, DateTime, Enum, ForeignKey, func
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from core.db.base import Base
+from enums import AppointmentStatus
 
 if TYPE_CHECKING:
     from models.appointment_service_model import AppointmentServiceModel
@@ -27,15 +28,21 @@ class AppointmentModel(Base):
         nullable=False,
         index=True,
     )
-    admin_id: Mapped[UUID] = mapped_column(
+    admin_id: Mapped[UUID | None] = mapped_column(
         PG_UUID(as_uuid=True),
         ForeignKey("users.id"),
-        nullable=False,
+        nullable=True,
         index=True,
     )
     date: Mapped[date] = mapped_column(
         Date,
         nullable=False,
+        index=True,
+    )
+    status: Mapped[AppointmentStatus] = mapped_column(
+        Enum(AppointmentStatus, name="appointment_status"),
+        nullable=False,
+        default=AppointmentStatus.PENDING,
         index=True,
     )
     created_at: Mapped[datetime] = mapped_column(
@@ -61,7 +68,6 @@ class AppointmentModel(Base):
         back_populates="admin_appointments",
     )
 
-    # Relacionamento N:N com services através da tabela de junção
     services: Mapped[list["AppointmentServiceModel"]] = relationship(
         "AppointmentServiceModel",
         back_populates="appointment",

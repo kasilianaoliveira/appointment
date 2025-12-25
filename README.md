@@ -20,7 +20,15 @@ A aplicação permite:
 
 ## 🧱 Arquitetura
 
-## 🗂 Estrutura de Pastas
+O projeto segue uma arquitetura em camadas (Layered Architecture) com separação clara de responsabilidades:
+
+- **Routers**: Endpoints da API, validação de entrada
+- **Services**: Lógica de negócio e orquestração
+- **Repositories**: Acesso a dados, queries SQLAlchemy
+- **Models**: Entidades do banco de dados (ORM)
+- **Schemas**: Validação e serialização de dados (Pydantic)
+- **Dependencies**: Injeção de dependências do FastAPI
+- **Core**: Configurações, segurança, exceções e utilitários
 
 ## 🧩 Modelagem de Dados
 
@@ -82,47 +90,56 @@ Principais tabelas:
 
 - A API estará disponível em: <http://localhost:8000/docs>
 
-## 🧪 Testes
+## 🗂 Estrutura de Pastas
 
-app/
-├── core/
-│   ├── **init**.py
+```text
+src/
+├── app.py                    # Aplicação FastAPI principal
+├── core/                     # Configurações e utilitários centrais
 │   ├── db/
-    │   ├── **init**.py
-│   ├── security.py
-│   └── settings.py
+│   │   ├── base.py          # Base do SQLAlchemy
+│   │   ├── dependencies.py  # Dependências do banco
+│   │   └── session.py        # Configuração de sessão
+│   ├── exceptions/
+│   │   ├── base_exception.py
+│   │   ├── error_handlers.py
+│   │   └── user_expection.py
+│   ├── logging_config.py
+│   ├── security.py           # JWT e hash de senhas
+│   └── settings.py           # Configurações da aplicação
 │
-├── models/
-│   ├── **init**.py
-│   ├── user_model.py
-│   └── user_role.py
+├── dependencies/             # Dependências do FastAPI
+│   ├── auth_dependencies.py
+│   └── pagination_dependencies.py
 │
-├── repositories/
-│   ├── **init**.py
-│   ├── interfaces/
-    │   ├── **init**.py
-│   │   └── user_interface.py
-│   └── user_repository.py
-│
-├── services/
-│   ├── **init**.py
-│   ├── auth_service.py
-│   └── user_service.py
-│
-├── schemas/
-│   ├── **init**.py
-│   ├── user_schema.py
-│   └── token_schema.py
-│
-├── enums/
-│   ├── **init**.py
+├── enums/                    # Enumerações
 │   ├── user_role.py
 │   └── user_date_filter.py
 │
-├── routes/
-│   ├── **init**.py
-│   └── user_routes.py
+├── models/                   # Modelos SQLAlchemy (ORM)
+│   ├── user_model.py
+│   ├── service_model.py
+│   ├── appointment_model.py
+│   ├── appointment_service_model.py
+│   └── admin_availability_model.py
 │
-└── main.py
+├── repositories/            # Camada de acesso a dados
+│   ├── interfaces/
+│   │   └── user_interface.py
+│   └── user_repository.py
+│
+├── routers/                 # Rotas/Endpoints da API
+│   └── user_router.py
+│
+├── schemas/                 # Schemas Pydantic (validação)
+│   ├── user_schema.py
+│   └── token_schema.py
+│
+└── services/                # Lógica de negócio
+    ├── auth_service.py
+    └── user_service.py
+```
 
-order: Model → Schema → Repository → Service → Router.
+**Fluxo de dados:** `Router → Service → Repository → Model`
+
+## 🧪 Testes

@@ -91,9 +91,13 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = [
-    "src/application",
-    "src/domain",
-    "src/infrastructure",
-    "src/interfaces",
     "src/core",
+    "src/dependencies",
+    "src/enums",
+    "src/models",
+    "src/repositories",
+    "src/schemas",
+    "src/services",
+    "src/routers",
+    "src/app.py",
 ]

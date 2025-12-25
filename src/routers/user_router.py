@@ -6,6 +6,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_pagination import Page, Params
 
 from dependencies.auth_dependencies import get_current_user, require_admin_user
+from dependencies.pagination_dependencies import get_pagination_params
 from enums import UserDateFilter
 from models import UserModel
 from schemas import TokenSchema, UserCreate, UserRead, UserUpdate
@@ -84,6 +85,7 @@ async def get_me(
 async def get_user_by_id(
     id: UUID,
     service: Annotated[UserService, Depends(get_user_service)],
+    _: Annotated[UserModel, Depends(require_admin_user)],
 ):
     return await service.get_user_by_id(id)
 
@@ -92,7 +94,7 @@ async def get_user_by_id(
     "/", response_model=Page[UserRead], status_code=status.HTTP_200_OK
 )
 async def get_all_clients(
-    params: Annotated[Params, Depends()],
+    params: Annotated[Params, Depends(get_pagination_params)],
     service: Annotated[UserService, Depends(get_user_service)],
     _: Annotated[UserModel, Depends(require_admin_user)],
     name: str | None = None,

@@ -1,12 +1,19 @@
+from __future__ import annotations
+
 from datetime import datetime
+from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
 from sqlalchemy import DateTime, String, func
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from core.db.base import Base
 from enums import UserRole
+
+if TYPE_CHECKING:
+    from models.admin_availability_model import AdminAvailabilityModel
+    from models.appointment_model import AppointmentModel
 
 
 class UserModel(Base):
@@ -33,4 +40,21 @@ class UserModel(Base):
         nullable=False,
         server_default=func.now(),
         onupdate=func.now(),
+    )
+
+    client_appointments: Mapped[list["AppointmentModel"]] = relationship(
+        "AppointmentModel",
+        foreign_keys="AppointmentModel.client_id",
+        back_populates="client",
+    )
+
+    admin_appointments: Mapped[list["AppointmentModel"]] = relationship(
+        "AppointmentModel",
+        foreign_keys="AppointmentModel.admin_id",
+        back_populates="admin",
+    )
+
+    availabilities: Mapped[list["AdminAvailabilityModel"]] = relationship(
+        "AdminAvailabilityModel",
+        back_populates="admin",
     )

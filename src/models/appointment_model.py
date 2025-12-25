@@ -1,0 +1,69 @@
+from __future__ import annotations
+
+from datetime import date, datetime
+from typing import TYPE_CHECKING
+from uuid import UUID, uuid4
+
+from sqlalchemy import Date, DateTime, ForeignKey, func
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from core.db.base import Base
+
+if TYPE_CHECKING:
+    from models.appointment_service_model import AppointmentServiceModel
+    from models.user_model import UserModel
+
+
+class AppointmentModel(Base):
+    __tablename__ = "appointments"
+
+    id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True), primary_key=True, default=uuid4, index=True
+    )
+    client_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey("users.id"),
+        nullable=False,
+        index=True,
+    )
+    admin_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey("users.id"),
+        nullable=False,
+        index=True,
+    )
+    date: Mapped[date] = mapped_column(
+        Date,
+        nullable=False,
+        index=True,
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+        onupdate=func.now(),
+    )
+
+    client: Mapped["UserModel"] = relationship(
+        "UserModel",
+        foreign_keys=[client_id],
+        back_populates="client_appointments",
+    )
+    admin: Mapped["UserModel"] = relationship(
+        "UserModel",
+        foreign_keys=[admin_id],
+        back_populates="admin_appointments",
+    )
+
+    # Relacionamento N:N com services através da tabela de junção
+    services: Mapped[list["AppointmentServiceModel"]] = relationship(
+        "AppointmentServiceModel",
+        back_populates="appointment",
+        cascade="all, delete-orphan",
+    )

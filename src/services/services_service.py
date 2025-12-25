@@ -1,10 +1,15 @@
 import logging
 from uuid import UUID
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.db.dependencies import get_session
+from core.exceptions import (
+    ServiceAlreadyExistsException,
+    ServiceNotFoundException,
+    ServicesNotFoundException,
+)
 from models import ServiceModel
 from repositories.interfaces.services_interface import IServiceRepository
 from repositories.services_repository import ServicesRepository
@@ -23,9 +28,8 @@ class ServicesService:
         )
 
         if existing_service:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Service with this name already exists",
+            raise ServiceAlreadyExistsException(
+                detail=f"Service with name '{service.name}' already exists"
             )
         logger.info(f"Creating service: {service}")
         return await self.services_repository.save(service)
@@ -38,10 +42,18 @@ class ServicesService:
         existing_service = await self.services_repository.get_by_id(id)
 
         if not existing_service:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Service not found",
+            raise ServiceNotFoundException(
+                detail=f"Service with id {id} not found",
             )
+
+        if service.name is not None:
+            existing_service.name = service.name
+
+        if service.description is not None:
+            existing_service.description = service.description
+
+        if service.price is not None:
+            existing_service.price = service.price
 
         logger.info(f"Updating service: {service}")
         return await self.services_repository.update(id, service)
@@ -50,9 +62,8 @@ class ServicesService:
         existing_service = await self.services_repository.get_by_id(id)
 
         if not existing_service:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Service not found",
+            raise ServiceNotFoundException(
+                detail=f"Service with id {id} not found",
             )
         logger.info(f"Deleting service: {id}")
         return await self.services_repository.delete(existing_service)
@@ -61,9 +72,8 @@ class ServicesService:
         existing_service = await self.services_repository.get_by_id(id)
 
         if not existing_service:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Service not found",
+            raise ServiceNotFoundException(
+                detail=f"Service with id {id} not found",
             )
         logger.info(f"Getting service by id: {id}")
         return existing_service
@@ -72,10 +82,7 @@ class ServicesService:
         existing_services = await self.services_repository.get_all()
 
         if not existing_services:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="No services found",
-            )
+            raise ServicesNotFoundException(detail="No services found")
         logger.info("Getting all services")
         return existing_services
 

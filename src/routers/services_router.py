@@ -7,8 +7,6 @@ from dependencies.auth_dependencies import require_admin_user
 from schemas.services_schema import ServiceCreate, ServiceRead, ServiceUpdate
 from services.services_service import ServicesService, get_services_service
 
-# so pode ser acessado por admin
-# so pode ser acessado por admin
 services_router = APIRouter(
     prefix="/services",
     tags=["Services"],

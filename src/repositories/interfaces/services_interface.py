@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from uuid import UUID
 
 from models import ServiceModel
-from schemas.services_schema import ServiceCreate, ServiceUpdate
+from schemas.services_schema import ServiceCreate
 
 
 class IServiceRepository(ABC):
@@ -23,7 +23,7 @@ class IServiceRepository(ABC):
         pass
 
     @abstractmethod
-    async def update(self, id: UUID, service: ServiceUpdate) -> ServiceModel:
+    async def update(self, service: ServiceModel) -> ServiceModel:
         pass
 
     @abstractmethod

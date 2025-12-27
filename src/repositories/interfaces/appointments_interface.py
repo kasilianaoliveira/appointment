@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 from uuid import UUID
 
-from enums import AppointmentStatus
+from enums import AppointmentStatus, FutureDateFilter
 from fastapi_pagination import Page, Params
 from models import AppointmentModel
 
@@ -21,20 +21,34 @@ class IAppointmentRepository(ABC):
         pass
 
     @abstractmethod
+    async def get_by_id(self, id: UUID) -> AppointmentModel | None:
+        pass
+
+    @abstractmethod
     async def get_all(
         self,
         params: Params,
         client_id: UUID | None = None,
         admin_id: UUID | None = None,
         status: AppointmentStatus | None = None,
-        date_filter: str | None = None,
+        date_filter: FutureDateFilter | None = None,
     ) -> Page[AppointmentModel]:
         pass
 
     @abstractmethod
-    async def get_by_client_id(self, client_id: UUID) -> AppointmentModel | None:
+    async def get_all_by_client_id(
+        self,
+        params: Params,
+        client_id: UUID,
+        status: AppointmentStatus | None = None,
+    ) -> Page[AppointmentModel]:
         pass
 
     @abstractmethod
-    async def get_by_admin_id(self, admin_id: UUID) -> AppointmentModel | None:
+    async def get_all_by_admin_id(
+        self,
+        params: Params,
+        admin_id: UUID,
+        status: AppointmentStatus | None = None,
+    ) -> Page[AppointmentModel]:
         pass

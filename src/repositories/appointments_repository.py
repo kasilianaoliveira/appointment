@@ -32,6 +32,12 @@ class AppointmentsRepository(IAppointmentsRepository):
         await self.session.delete(appointment)
         await self.session.commit()
 
+    async def get_by_id(self, id: UUID) -> AppointmentModel | None:
+        result = await self.session.execute(
+            select(AppointmentModel).where(AppointmentModel.id == id)
+        )
+        return result.scalar_one_or_none()
+
     async def get_all(
         self,
         params: Params,

@@ -6,10 +6,12 @@ from fastapi_pagination.ext.sqlalchemy import paginate
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from enums import UserDateFilter, UserRole
+from enums import DateFilter, UserRole
 from models import UserModel
 from repositories.interfaces.user_interface import IUserRepository
-from schemas import UserCreate
+from utils.date_filters import get_date_filter
+
+from utils import DATE_FILTERS
 
 
 class UserRepository(IUserRepository):
@@ -51,7 +53,7 @@ class UserRepository(IUserRepository):
         params: Params,
         name: str | None = None,
         email: str | None = None,
-        date_filter: UserDateFilter | None = None,
+        date_filter: DateFilter | None = None,
     ) -> Page[UserModel]:
         stmt = (
             select(UserModel)
@@ -59,22 +61,14 @@ class UserRepository(IUserRepository):
             .where(UserModel.role == UserRole.CLIENT)
         )
 
-        # like = case sensitive
-        # ilike = case insensitive
-
         if name:
             stmt = stmt.where(UserModel.name.ilike(f"%{name}%"))
         if email:
             stmt = stmt.where(UserModel.email.ilike(f"%{email}%"))
 
-        DATA_FILTERS = {
-            UserDateFilter.LAST_7_DAYS: timedelta(days=7),
-            UserDateFilter.LAST_30_DAYS: timedelta(days=30),
-            UserDateFilter.LAST_90_DAYS: timedelta(days=90),
-        }
-
-        if date_filter and date_filter in DATA_FILTERS:
+        if date_filter and date_filter in DATE_FILTERS:
+            date_filter_timedelta = get_date_filter(date_filter)
             stmt = stmt.where(
-                UserModel.created_at >= datetime.now(UTC) - DATA_FILTERS[date_filter]
+                UserModel.created_at >= datetime.now(UTC) - date_filter_timedelta
             )
         return await paginate(self.session, stmt, params)

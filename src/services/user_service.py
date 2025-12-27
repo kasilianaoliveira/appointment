@@ -14,7 +14,7 @@ from core.exceptions import (
 from core.security import (
     get_password_hash,
 )
-from enums import UserDateFilter
+from enums import DateFilter
 from models import UserModel
 from repositories.interfaces.user_interface import IUserRepository
 from repositories.user_repository import UserRepository
@@ -100,7 +100,7 @@ class UserService:
         params: Params,
         name: str | None = None,
         email: str | None = None,
-        date_filter: UserDateFilter | None = None,
+        date_filter: DateFilter | None = None,
     ) -> Page[UserModel]:
 
         existing_users = await self.user_repository.get_all_clients(

@@ -7,7 +7,7 @@ from fastapi_pagination import Page, Params
 
 from dependencies.auth_dependencies import get_current_user, require_admin_user
 from dependencies.pagination_dependencies import get_pagination_params
-from enums import UserDateFilter
+from enums import DateFilter
 from models import UserModel
 from schemas import TokenSchema, UserCreate, UserRead, UserUpdate
 from services.auth_service import AuthService, get_auth_service
@@ -99,6 +99,6 @@ async def get_all_clients(
     _: Annotated[UserModel, Depends(require_admin_user)],
     name: str | None = None,
     email: str | None = None,
-    date_filter: UserDateFilter | None = None,
+    date_filter: DateFilter | None = None,
 ):
     return await service.get_all_clients(params, name, email, date_filter)

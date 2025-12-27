@@ -43,3 +43,14 @@ class InvalidServiceDataException(BaseAppException):
             status_code=400,
             detail=detail or "The provided service data is invalid",
         )
+
+
+class InvalidServicePriceException(BaseAppException):
+    """Exception raised when service price is invalid."""
+
+    def __init__(self, detail: str | None = None):
+        super().__init__(
+            message="Invalid service price",
+            status_code=400,
+            detail=detail or "The provided service price is invalid",
+        )

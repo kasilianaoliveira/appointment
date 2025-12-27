@@ -32,15 +32,7 @@ class ServicesRepository(IServiceRepository):
         )
         return result.scalar_one_or_none()
 
-    async def save(self, data: ServiceCreate) -> ServiceModel:
-
-        price_decimal = Decimal(str(data.price))
-
-        service = ServiceModel(
-            name=data.name,
-            description=data.description,
-            price=price_decimal,
-        )
+    async def save(self, service: ServiceModel) -> ServiceModel:
 
         self.session.add(service)
         await self.session.commit()

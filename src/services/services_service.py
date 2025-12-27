@@ -1,6 +1,8 @@
+from decimal import Decimal
 import logging
 from uuid import UUID
 
+from core.exceptions.services_exception import InvalidServicePriceException
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -31,8 +33,20 @@ class ServicesService:
             raise ServiceAlreadyExistsException(
                 detail=f"Service with name '{service.name}' already exists"
             )
-        logger.info(f"Creating service: {service}")
-        return await self.services_repository.save(service)
+
+        if service.price <= 0:
+            raise InvalidServicePriceException(
+                detail=f"Service price must be greater than 0"
+            )
+
+        service_model = ServiceModel(
+            name=service.name,
+            description=service.description,
+            price=Decimal(str(service.price)),
+        )
+
+        logger.info(f"Creating service name={service.name}")
+        return await self.services_repository.save(service_model)
 
     async def update_service(
         self,

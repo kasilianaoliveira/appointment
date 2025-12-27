@@ -3,10 +3,17 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, status
 
-from dependencies.auth_dependencies import require_admin_user
+from dependencies.auth_dependencies import get_current_user, require_admin_user
 from schemas.services_schema import ServiceCreate, ServiceRead, ServiceUpdate
 from services.services_service import ServicesService, get_services_service
 
+public_services_router = APIRouter(
+    prefix="/services",
+    tags=["Services"],
+    dependencies=[
+        Depends(get_current_user),
+    ],
+)
 services_router = APIRouter(
     prefix="/services",
     tags=["Services"],
@@ -64,7 +71,7 @@ async def get_service_by_id(
     return await service.get_service_by_id(id)
 
 
-@services_router.get(
+@public_services_router.get(
     "/",
     response_model=list[ServiceRead],
     status_code=status.HTTP_200_OK,

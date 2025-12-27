@@ -1,6 +1,4 @@
-"""Models package."""
-
-from models.admin_availability_model import AdminAvailabilityModel
+from models.admin_daily_limit_model import AdminDailyLimitModel
 from models.appointment_model import AppointmentModel
 from models.appointment_service_model import AppointmentServiceModel
 from models.service_model import ServiceModel
@@ -10,6 +8,6 @@ __all__ = [
     "UserModel",
     "ServiceModel",
     "AppointmentModel",
-    "AdminAvailabilityModel",
+    "AdminDailyLimitModel",
     "AppointmentServiceModel",
 ]

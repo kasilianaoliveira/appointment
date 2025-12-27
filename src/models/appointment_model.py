@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
 from enums import AppointmentStatus
-from sqlalchemy import Date, DateTime, Enum, ForeignKey, func
+from sqlalchemy import Date, DateTime, Enum, ForeignKey, String, func
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -32,7 +32,12 @@ class AppointmentModel(Base):
     status: Mapped[AppointmentStatus] = mapped_column(
         Enum(AppointmentStatus, name="appointment_status"),
         nullable=False,
-        default=AppointmentStatus.PENDING,
+        server_default=AppointmentStatus.PENDING,
+    )
+
+    cancel_reason: Mapped[str | None] = mapped_column(
+        String(255),
+        nullable=True,
     )
 
     created_at: Mapped[datetime] = mapped_column(

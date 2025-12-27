@@ -16,15 +16,7 @@ class UserRepository(IUserRepository):
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def save(self, data: UserCreate) -> UserModel:
-
-        user = UserModel(
-            name=data.name,
-            password_hash=data.password,
-            email=data.email,
-            phone=data.phone,
-            role=data.role,
-        )
+    async def save(self, user: UserModel) -> UserModel:
 
         self.session.add(user)
         await self.session.commit()

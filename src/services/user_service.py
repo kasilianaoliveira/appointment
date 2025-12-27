@@ -36,10 +36,17 @@ class UserService:
                 detail=f"User with email {user.email} already exists"
             )
 
-        logger.info(f"Creating user: {user}")
-        user.password = get_password_hash(user.password)
+        user_model = UserModel(
+            name=user.name,
+            password_hash=get_password_hash(user.password),
+            email=user.email,
+            phone=user.phone,
+            role=user.role,
+        )
 
-        return await self.user_repository.save(user)
+        logger.info(f"Creating user with email={user.email}")
+
+        return await self.user_repository.save(user_model)
 
     async def update_user(self, id: UUID, user: UserUpdate) -> UserModel:
         existing_user = await self.user_repository.get_by_id(id)

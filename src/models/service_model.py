@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from decimal import Decimal
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 from uuid import UUID, uuid4
 
 from sqlalchemy import DateTime, Numeric, String, Text, func
@@ -38,9 +38,7 @@ class ServiceModel(Base):
         onupdate=func.now(),
     )
 
-    # Relacionamento N:N com appointments através da tabela de junção
-    appointments: Mapped[list["AppointmentServiceModel"]] = relationship(
-        "AppointmentServiceModel",
+    appointments: Mapped[List["AppointmentServiceModel"]] = relationship(
         back_populates="service",
         cascade="all, delete-orphan",
     )

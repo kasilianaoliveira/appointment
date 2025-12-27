@@ -21,7 +21,7 @@ from models.user_model import UserModel  # noqa: F401
 from models.service_model import ServiceModel  # noqa: F401
 from models.appointment_model import AppointmentModel  # noqa: F401
 from models.appointment_service_model import AppointmentServiceModel  # noqa: F401
-from models.admin_availability_model import AdminAvailabilityModel  # noqa: F401
+from models.admin_daily_limit_model import AdminDailyLimitModel  # noqa: F40
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

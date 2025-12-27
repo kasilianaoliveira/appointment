@@ -3,6 +3,6 @@ from enum import StrEnum
 
 class AppointmentStatus(StrEnum):
     PENDING = "pending"
-    ACCEPTED = "accepted"
-    COMPLETED = "completed"
+    CONFIRMED = "confirmed"
     CANCELLED = "cancelled"
+    COMPLETED = "completed"

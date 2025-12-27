@@ -30,11 +30,9 @@ class AppointmentServiceModel(Base):
     )
 
     appointment: Mapped["AppointmentModel"] = relationship(
-        "AppointmentModel",
         back_populates="services",
     )
 
     service: Mapped["ServiceModel"] = relationship(
-        "ServiceModel",
         back_populates="appointments",
     )

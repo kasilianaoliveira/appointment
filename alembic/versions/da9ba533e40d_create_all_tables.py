@@ -1,8 +1,8 @@
-"""create_appointments_services_and_admin_availability_tables
+"""create all tables
 
-Revision ID: 97f594193f49
+Revision ID: da9ba533e40d
 Revises: 
-Create Date: 2025-12-25 16:53:04.465230
+Create Date: 2025-12-27 16:24:12.153752
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '97f594193f49'
+revision: str = 'da9ba533e40d'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -30,24 +30,39 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_services_id'), 'services', ['id'], unique=False)
-    op.create_index(op.f('ix_services_name'), 'services', ['name'], unique=False)
-    op.create_table('admin_availability',
+    op.create_index(op.f('ix_services_name'), 'services', ['name'], unique=True)
+    op.create_table('users',
+    sa.Column('id', sa.UUID(), nullable=False),
+    sa.Column('name', sa.String(length=255), nullable=False),
+    sa.Column('email', sa.String(length=150), nullable=False),
+    sa.Column('password_hash', sa.String(length=255), nullable=False),
+    sa.Column('role', sa.Enum('ADMIN', 'CLIENT', name='user_role'), nullable=False),
+    sa.Column('phone', sa.String(length=20), nullable=False),
+    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_users_email'), 'users', ['email'], unique=True)
+    op.create_index(op.f('ix_users_id'), 'users', ['id'], unique=False)
+    op.create_index(op.f('ix_users_name'), 'users', ['name'], unique=False)
+    op.create_table('admin_daily_limits',
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('admin_id', sa.UUID(), nullable=False),
-    sa.Column('available_date', sa.Date(), nullable=False),
-    sa.Column('max_appointments', sa.Integer(), nullable=False),
-    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('week_day', sa.Enum('MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY', name='week_day'), nullable=False),
+    sa.Column('limit', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['admin_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('admin_id', 'available_date', name='uq_admin_date')
+    sa.UniqueConstraint('admin_id', 'week_day', name='uq_admin_week_day')
     )
+    op.create_index(op.f('ix_admin_daily_limits_admin_id'), 'admin_daily_limits', ['admin_id'], unique=False)
+    op.create_index(op.f('ix_admin_daily_limits_id'), 'admin_daily_limits', ['id'], unique=False)
     op.create_table('appointments',
     sa.Column('id', sa.UUID(), nullable=False),
-    sa.Column('client_id', sa.UUID(), nullable=False),
-    sa.Column('admin_id', sa.UUID(), nullable=False),
     sa.Column('date', sa.Date(), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('client_id', sa.UUID(), nullable=False),
+    sa.Column('admin_id', sa.UUID(), nullable=True),
     sa.ForeignKeyConstraint(['admin_id'], ['users.id'], ),
     sa.ForeignKeyConstraint(['client_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
@@ -74,7 +89,13 @@ def downgrade() -> None:
     op.drop_index(op.f('ix_appointments_client_id'), table_name='appointments')
     op.drop_index(op.f('ix_appointments_admin_id'), table_name='appointments')
     op.drop_table('appointments')
-    op.drop_table('admin_availability')
+    op.drop_index(op.f('ix_admin_daily_limits_id'), table_name='admin_daily_limits')
+    op.drop_index(op.f('ix_admin_daily_limits_admin_id'), table_name='admin_daily_limits')
+    op.drop_table('admin_daily_limits')
+    op.drop_index(op.f('ix_users_name'), table_name='users')
+    op.drop_index(op.f('ix_users_id'), table_name='users')
+    op.drop_index(op.f('ix_users_email'), table_name='users')
+    op.drop_table('users')
     op.drop_index(op.f('ix_services_name'), table_name='services')
     op.drop_index(op.f('ix_services_id'), table_name='services')
     op.drop_table('services')

@@ -1,11 +1,5 @@
 """Custom exceptions for the application."""
 
-from core.exceptions.admin_availability_exception import (
-    AdminAvailabilitiesNotFoundException,
-    AdminAvailabilityAlreadyExistsException,
-    AdminAvailabilityNotFoundException,
-    InvalidAdminAvailabilityDataException,
-)
 from core.exceptions.appointment_exception import (
     AdminNotAvailableException,
     AppointmentAlreadyAcceptedException,
@@ -45,9 +39,5 @@ __all__ = [
     "InvalidAppointmentDataException",
     "AppointmentAlreadyAcceptedException",
     "AdminNotAvailableException",
-    "AdminAvailabilityNotFoundException",
-    "AdminAvailabilityAlreadyExistsException",
-    "AdminAvailabilitiesNotFoundException",
-    "InvalidAdminAvailabilityDataException",
     "InvalidAppointmentStateException",
 ]

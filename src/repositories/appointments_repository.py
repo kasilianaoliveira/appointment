@@ -2,31 +2,50 @@ from datetime import UTC, datetime
 from uuid import UUID
 from enums import AppointmentStatus, DateFilter
 from enums.date_filter import FutureDateFilter
-from fastapi_pagination import Page, Params, paginate
+from fastapi_pagination import Page, Params
+from fastapi_pagination.ext.sqlalchemy import paginate
+from repositories.interfaces.appointments_interface import IAppointmentRepository
 from schemas import AppointmentCreate
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from models import AppointmentModel
-from repositories.interfaces.appointments_interface import IAppointmentsRepository
+from models.appointment_service_model import AppointmentServiceModel
+
 from sqlalchemy.orm import selectinload
 from utils import DATE_FILTERS, FUTURE_DATE_FILTERS, get_date_filter
 
 
-class AppointmentsRepository(IAppointmentsRepository):
+class AppointmentsRepository(IAppointmentRepository):
     def __init__(self, session: AsyncSession):
         self.session = session
 
     async def save(self, appointment: AppointmentModel) -> AppointmentModel:
         self.session.add(appointment)
+        await self.session.flush()
+
+        appointment_id = appointment.id
         await self.session.commit()
-        await self.session.refresh(appointment)
-        return appointment
+
+        self.session.expunge(appointment)
+        loaded_appointment = await self.get_by_id(appointment_id)
+        if not loaded_appointment:
+            raise ValueError(
+                f"Failed to reload appointment {appointment_id} after save"
+            )
+        return loaded_appointment
 
     async def update(self, appointment: AppointmentModel) -> AppointmentModel:
         self.session.add(appointment)
         await self.session.commit()
-        await self.session.refresh(appointment)
-        return appointment
+
+        appointment_id = appointment.id
+        self.session.expunge(appointment)
+        loaded_appointment = await self.get_by_id(appointment_id)
+        if not loaded_appointment:
+            raise ValueError(
+                f"Failed to reload appointment {appointment_id} after update"
+            )
+        return loaded_appointment
 
     async def delete(self, appointment: AppointmentModel) -> None:
         await self.session.delete(appointment)
@@ -35,7 +54,11 @@ class AppointmentsRepository(IAppointmentsRepository):
     async def get_by_id(self, id: UUID) -> AppointmentModel | None:
         result = await self.session.execute(
             select(AppointmentModel)
-            .options(selectinload(AppointmentModel.services).selectinload("service"))
+            .options(
+                selectinload(AppointmentModel.services).selectinload(
+                    AppointmentServiceModel.service
+                )
+            )
             .where(AppointmentModel.id == id)
         )
         return result.scalar_one_or_none()
@@ -50,7 +73,11 @@ class AppointmentsRepository(IAppointmentsRepository):
     ) -> Page[AppointmentModel]:
         stmt = (
             select(AppointmentModel)
-            .options(selectinload(AppointmentModel.services).selectinload("service"))
+            .options(
+                selectinload(AppointmentModel.services).selectinload(
+                    AppointmentServiceModel.service
+                )
+            )
             .order_by(AppointmentModel.created_at.desc())
         )
 

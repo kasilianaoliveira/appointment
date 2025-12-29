@@ -30,9 +30,13 @@ class AppointmentModel(Base):
     )
 
     status: Mapped[AppointmentStatus] = mapped_column(
-        Enum(AppointmentStatus, name="appointment_status"),
+        Enum(
+            AppointmentStatus,
+            name="appointment_status",
+            values_callable=lambda x: [e.value for e in AppointmentStatus],
+        ),
         nullable=False,
-        server_default=AppointmentStatus.PENDING,
+        server_default=AppointmentStatus.PENDING.value,
     )
 
     cancel_reason: Mapped[str | None] = mapped_column(

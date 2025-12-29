@@ -16,6 +16,7 @@ def create_app() -> FastAPI:
     )
     app.include_router(user_public_router)
     app.include_router(protected_user_router)
+
     app.include_router(public_services_router)
     app.include_router(services_router)
 

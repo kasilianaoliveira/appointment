@@ -107,12 +107,8 @@ class UserService:
             params, name, email, date_filter
         )
 
-        if not existing_users:
-            raise UsersNotFoundException(
-                detail="No users found matching the provided criteria"
-            )
-
-        logger.info(f"Users found: {existing_users}")
+        if not existing_users.items:
+            return Page(items=[], total=0, page=params.page, size=params.size)
 
         return existing_users
 

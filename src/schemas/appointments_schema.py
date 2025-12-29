@@ -34,7 +34,6 @@ class AppointmentRead(BaseModel):
 
 class AppointmentCancel(BaseModel):
     cancel_reason: str
-    cancelled_at: datetime
 
 
 class AppointmentClientUpdate(BaseModel):

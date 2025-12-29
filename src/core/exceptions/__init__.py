@@ -13,6 +13,7 @@ from core.exceptions.appointment_exception import (
     AppointmentNotFoundException,
     AppointmentsNotFoundException,
     InvalidAppointmentDataException,
+    InvalidAppointmentStateException,
 )
 from core.exceptions.base_exception import BaseAppException
 from core.exceptions.services_exception import (
@@ -48,4 +49,5 @@ __all__ = [
     "AdminAvailabilityAlreadyExistsException",
     "AdminAvailabilitiesNotFoundException",
     "InvalidAdminAvailabilityDataException",
+    "InvalidAppointmentStateException",
 ]

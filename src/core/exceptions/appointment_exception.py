@@ -66,3 +66,14 @@ class AdminNotAvailableException(BaseAppException):
             detail=detail
             or "The admin has reached the maximum number of appointments for this date",
         )
+
+
+class InvalidAppointmentStateException(BaseAppException):
+    """Exception raised when appointment state is invalid."""
+
+    def __init__(self, detail: str | None = None):
+        super().__init__(
+            message="Invalid appointment state",
+            status_code=400,
+            detail=detail or "The appointment state is invalid",
+        )

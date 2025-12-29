@@ -34,21 +34,3 @@ class IAppointmentRepository(ABC):
         date_filter: FutureDateFilter | None = None,
     ) -> Page[AppointmentModel]:
         pass
-
-    @abstractmethod
-    async def get_all_by_client_id(
-        self,
-        params: Params,
-        client_id: UUID,
-        status: AppointmentStatus | None = None,
-    ) -> Page[AppointmentModel]:
-        pass
-
-    @abstractmethod
-    async def get_all_by_admin_id(
-        self,
-        params: Params,
-        admin_id: UUID,
-        status: AppointmentStatus | None = None,
-    ) -> Page[AppointmentModel]:
-        pass

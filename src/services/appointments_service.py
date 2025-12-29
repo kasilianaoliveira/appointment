@@ -1,5 +1,7 @@
 from uuid import UUID
+from core.exceptions import AppointmentNotFoundException
 from core.exceptions.appointment_exception import AppointmentsNotFoundException
+from enums import AppointmentStatus, FutureDateFilter
 from fastapi_pagination import Page, Params
 from repositories.interfaces.appointments_interface import IAppointmentRepository
 from models.appointment_model import AppointmentModel
@@ -12,44 +14,32 @@ class AppointmentsService:
         self.appointment_repository = appointment_repository
 
     async def create_appointment(
-        self, appointment: AppointmentCreate
+        self,
+        appointment: AppointmentCreate,
+        client_id: UUID,
+        admin_id: UUID | None = None,
     ) -> AppointmentModel:
         appointment_model = AppointmentModel(
             date=appointment.date,
             services=appointment.services,
-            client_id=appointment.client_id,
-            admin_id=appointment.admin_id,
+            client_id=client_id,
+            admin_id=admin_id,
         )
         return await self.appointment_repository.save(appointment_model)
 
-    async def get_all_appointments(self, params: Params) -> Page[AppointmentModel]:
-        appointments = await self.appointment_repository.get_all(params)
-
-        if not appointments:
-            raise AppointmentsNotFoundException(detail="No appointments found")
-
-        return appointments
-
-    async def get_all_appointments_by_client_id(
-        self, params: Params, client_id: UUID
+    async def get_all_appointments(
+        self,
+        params: Params,
+        client_id: UUID | None = None,
+        admin_id: UUID | None = None,
+        status: AppointmentStatus | None = None,
+        date_filter: FutureDateFilter | None = None,
     ) -> Page[AppointmentModel]:
-        appointments = await self.appointment_repository.get_all_by_client_id(
-            params, client_id
+        appointments = await self.appointment_repository.get_all(
+            params, client_id, admin_id, status, date_filter
         )
 
-        if not appointments:
-            raise AppointmentsNotFoundException(detail="No appointments found")
-
-        return appointments
-
-    async def get_all_appointments_by_admin_id(
-        self, params: Params, admin_id: UUID
-    ) -> Page[AppointmentModel]:
-        appointments = await self.appointment_repository.get_all_by_admin_id(
-            params, admin_id
-        )
-
-        if not appointments:
-            raise AppointmentsNotFoundException(detail="No appointments found")
+        if not appointments.items:
+            return Page(items=[], total=0, page=params.page, size=params.size)
 
         return appointments

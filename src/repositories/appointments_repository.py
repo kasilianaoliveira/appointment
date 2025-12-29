@@ -49,55 +49,21 @@ class AppointmentsRepository(IAppointmentsRepository):
         stmt = (
             select(AppointmentModel)
             .options(selectinload(AppointmentModel.services).selectinload("service"))
-            .order_by(AppointmentModel.created_at)
+            .order_by(AppointmentModel.created_at.desc())
         )
 
-        if client_id:
+        if client_id is not None:
             stmt = stmt.where(AppointmentModel.client_id == client_id)
-        if admin_id:
+        if admin_id is not None:
             stmt = stmt.where(AppointmentModel.admin_id == admin_id)
-        if status:
+        if status is not None:
             stmt = stmt.where(AppointmentModel.status == status)
 
-        if date_filter and date_filter in FUTURE_DATE_FILTERS:
+        if date_filter is not None and date_filter in FUTURE_DATE_FILTERS:
             date_filter_timedelta = FUTURE_DATE_FILTERS[date_filter]
+            now = datetime.now(UTC)
             stmt = stmt.where(
-                AppointmentModel.date >= datetime.now(UTC) - date_filter_timedelta
+                AppointmentModel.date.between(now, now + date_filter_timedelta)
             )
-
-        return await paginate(self.session, stmt, params)
-
-    async def get_all_by_client_id(
-        self,
-        params: Params,
-        client_id: UUID,
-        status: AppointmentStatus | None = None,
-    ) -> Page[AppointmentModel]:
-        stmt = (
-            select(AppointmentModel)
-            .options(selectinload(AppointmentModel.services).selectinload("service"))
-            .where(AppointmentModel.client_id == client_id)
-            .order_by(AppointmentModel.created_at)
-        )
-        if status:
-            stmt = stmt.where(AppointmentModel.status == status)
-
-        return await paginate(self.session, stmt, params)
-
-    async def get_all_by_admin_id(
-        self,
-        params: Params,
-        admin_id: UUID,
-        status: AppointmentStatus | None = None,
-    ) -> Page[AppointmentModel]:
-        stmt = (
-            select(AppointmentModel)
-            .options(selectinload(AppointmentModel.services).selectinload("service"))
-            .where(AppointmentModel.admin_id == admin_id)
-            .order_by(AppointmentModel.created_at)
-        )
-
-        if status:
-            stmt = stmt.where(AppointmentModel.status == status)
 
         return await paginate(self.session, stmt, params)

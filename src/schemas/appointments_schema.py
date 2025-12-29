@@ -1,32 +1,50 @@
-from datetime import date, datetime
-from typing import List
+from datetime import date as DateType, datetime
+from typing import List, Optional
 from uuid import UUID
-
 from enums import AppointmentStatus
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 from schemas import ServiceRead
 
 
 class AppointmentCreate(BaseModel):
-    date: date
+    date: DateType
     services: list[UUID]
 
 
 class AppointmentRead(BaseModel):
     id: UUID
-    date: date
+    date: DateType
     status: AppointmentStatus
 
     client_id: UUID
-    admin_id: UUID | None = None
+    admin_id: Optional[UUID] = None
 
     services: List[ServiceRead]
 
-    cancel_reason: str | None = None
-    cancelled_at: datetime | None = None
+    cancel_reason: Optional[str] = None
+    cancelled_at: Optional[datetime] = None
 
     created_at: datetime
     updated_at: datetime
+
+    @model_validator(mode="before")
+    @classmethod
+    def extract_services(cls, data):
+        if hasattr(data, "services"):
+
+            result = {
+                key: getattr(data, key)
+                for key in cls.model_fields.keys()
+                if key != "services"
+            }
+            services = [
+                item.service
+                for item in data.services
+                if hasattr(item, "service") and item.service is not None
+            ]
+            result["services"] = services
+            return result
+        return data
 
     class Config:
         from_attributes = True
@@ -37,8 +55,8 @@ class AppointmentCancel(BaseModel):
 
 
 class AppointmentClientUpdate(BaseModel):
-    date: date | None = None
-    services: list[UUID] | None = None
+    date: Optional[DateType] = None
+    services: Optional[list[UUID]] = None
 
 
 class AppointmentAdminUpdate(BaseModel):

@@ -1,21 +1,24 @@
 from datetime import UTC, datetime
 from uuid import UUID
+from core.db.dependencies import get_session
 from core.exceptions import (
     AppointmentNotFoundException,
     InvalidAppointmentStateException,
 )
 from core.exceptions.appointment_exception import AppointmentsNotFoundException
 from enums import AppointmentStatus, FutureDateFilter
+from fastapi import Depends
 from fastapi_pagination import Page, Params
-from repositories.interfaces.appointments_interface import IAppointmentRepository
+from repositories.appointments_repository import AppointmentsRepository
 from models.appointment_model import AppointmentModel
 from models.appointment_service_model import AppointmentServiceModel
 
+from repositories.interfaces.appointments_interface import IAppointmentRepository
 from schemas.appointments_schema import (
-    AppointmentAdminUpdate,
     AppointmentClientUpdate,
     AppointmentCreate,
 )
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class AppointmentsService:
@@ -30,10 +33,17 @@ class AppointmentsService:
     ) -> AppointmentModel:
         appointment_model = AppointmentModel(
             date=appointment.date,
-            services=appointment.services,
             client_id=client_id,
             admin_id=admin_id,
         )
+
+        for service_id in appointment.services:
+            appointment_service = AppointmentServiceModel(
+                appointment_id=appointment_model.id,
+                service_id=service_id,
+            )
+            appointment_model.services.append(appointment_service)
+
         return await self.appointment_repository.save(appointment_model)
 
     async def delete_appointment(self, id: UUID) -> None:
@@ -122,19 +132,6 @@ class AppointmentsService:
 
         return await self.appointment_repository.update(existing_appointment)
 
-    async def cancel_by_client(
-        self,
-        appointment_id: UUID,
-        cancel_reason: str,
-        client_id: UUID | None = None,
-    ) -> AppointmentModel:
-        """Método de conveniência para cancelamento pelo cliente."""
-        return await self.cancel_appointment(
-            appointment_id=appointment_id,
-            cancel_reason=cancel_reason,
-            client_id=client_id,
-        )
-
     async def confirm_by_admin(
         self,
         appointment_id: UUID,
@@ -174,6 +171,17 @@ class AppointmentsService:
 
         return await self.appointment_repository.update(existing_appointment)
 
+    async def get_appointment_by_id(
+        self,
+        appointment_id: UUID,
+    ) -> AppointmentModel:
+        appointment = await self.appointment_repository.get_by_id(appointment_id)
+        if not appointment:
+            raise AppointmentNotFoundException(
+                detail=f"Appointment with id {appointment_id} not found",
+            )
+        return appointment
+
     async def get_all_appointments(
         self,
         params: Params,
@@ -190,3 +198,10 @@ class AppointmentsService:
             return Page(items=[], total=0, page=params.page, size=params.size)
 
         return appointments
+
+
+def get_appointments_service(
+    db: AsyncSession = Depends(get_session),
+) -> AppointmentsService:
+    repo = AppointmentsRepository(db)
+    return AppointmentsService(repo)

@@ -1,12 +1,21 @@
+from datetime import UTC, datetime
 from uuid import UUID
-from core.exceptions import AppointmentNotFoundException
+from core.exceptions import (
+    AppointmentNotFoundException,
+    InvalidAppointmentStateException,
+)
 from core.exceptions.appointment_exception import AppointmentsNotFoundException
 from enums import AppointmentStatus, FutureDateFilter
 from fastapi_pagination import Page, Params
 from repositories.interfaces.appointments_interface import IAppointmentRepository
 from models.appointment_model import AppointmentModel
+from models.appointment_service_model import AppointmentServiceModel
 
-from schemas.appointments_schema import AppointmentCreate
+from schemas.appointments_schema import (
+    AppointmentAdminUpdate,
+    AppointmentClientUpdate,
+    AppointmentCreate,
+)
 
 
 class AppointmentsService:
@@ -26,6 +35,144 @@ class AppointmentsService:
             admin_id=admin_id,
         )
         return await self.appointment_repository.save(appointment_model)
+
+    async def delete_appointment(self, id: UUID) -> None:
+        existing_appointment = await self.appointment_repository.get_by_id(id)
+        if not existing_appointment:
+            raise AppointmentNotFoundException(
+                detail=f"Appointment with id {id} not found",
+            )
+        return await self.appointment_repository.delete(existing_appointment)
+
+    async def update_by_client(
+        self,
+        appointment_id: UUID,
+        appointment: AppointmentClientUpdate,
+        client_id: UUID | None = None,
+    ) -> AppointmentModel:
+        existing_appointment = await self.appointment_repository.get_by_id(
+            appointment_id
+        )
+        if not existing_appointment:
+            raise AppointmentNotFoundException(
+                detail=f"Appointment with id {appointment_id} not found",
+            )
+
+        if existing_appointment.client_id != client_id:
+            raise InvalidAppointmentStateException(
+                detail=f"Appointment with id {appointment_id} does not belong to the client",
+            )
+
+        if existing_appointment.status != AppointmentStatus.PENDING:
+            raise InvalidAppointmentStateException(
+                detail=f"Appointment with id {appointment_id} is not pending",
+            )
+
+        if appointment.date is not None:
+            existing_appointment.date = appointment.date
+
+        if appointment.services is not None:
+            existing_appointment.services.clear()
+
+            for service_id in appointment.services:
+                appointment_service = AppointmentServiceModel(
+                    appointment_id=existing_appointment.id,
+                    service_id=service_id,
+                )
+                existing_appointment.services.append(appointment_service)
+
+        return await self.appointment_repository.update(existing_appointment)
+
+    async def cancel_appointment(
+        self,
+        appointment_id: UUID,
+        cancel_reason: str,
+        client_id: UUID | None = None,
+        admin_id: UUID | None = None,
+    ) -> AppointmentModel:
+        existing_appointment = await self.appointment_repository.get_by_id(
+            appointment_id
+        )
+        if not existing_appointment:
+            raise AppointmentNotFoundException(
+                detail=f"Appointment with id {appointment_id} not found",
+            )
+
+        is_client = (
+            client_id is not None and existing_appointment.client_id == client_id
+        )
+        is_admin = admin_id is not None and existing_appointment.admin_id == admin_id
+
+        if not (is_client or is_admin):
+            raise InvalidAppointmentStateException(
+                detail=f"Appointment with id {appointment_id} can only be cancelled by the client or assigned admin",
+            )
+
+        if existing_appointment.status not in (
+            AppointmentStatus.PENDING,
+            AppointmentStatus.CONFIRMED,
+        ):
+            raise InvalidAppointmentStateException(
+                detail="This appointment cannot be cancelled",
+            )
+
+        existing_appointment.status = AppointmentStatus.CANCELLED
+        existing_appointment.cancel_reason = cancel_reason
+        existing_appointment.cancelled_at = datetime.now(UTC)
+
+        return await self.appointment_repository.update(existing_appointment)
+
+    async def cancel_by_client(
+        self,
+        appointment_id: UUID,
+        cancel_reason: str,
+        client_id: UUID | None = None,
+    ) -> AppointmentModel:
+        """Método de conveniência para cancelamento pelo cliente."""
+        return await self.cancel_appointment(
+            appointment_id=appointment_id,
+            cancel_reason=cancel_reason,
+            client_id=client_id,
+        )
+
+    async def confirm_by_admin(
+        self,
+        appointment_id: UUID,
+        admin_id: UUID | None = None,
+    ) -> AppointmentModel:
+        if admin_id is None:
+            raise InvalidAppointmentStateException(
+                detail="Admin ID is required to confirm an appointment",
+            )
+
+        existing_appointment = await self.appointment_repository.get_by_id(
+            appointment_id
+        )
+        if not existing_appointment:
+            raise AppointmentNotFoundException(
+                detail=f"Appointment with id {appointment_id} not found",
+            )
+
+        if existing_appointment.status == AppointmentStatus.CANCELLED:
+            raise InvalidAppointmentStateException(
+                detail=f"Appointment with id {appointment_id} is cancelled",
+            )
+
+        if existing_appointment.status == AppointmentStatus.CONFIRMED:
+            raise InvalidAppointmentStateException(
+                detail=f"Appointment with id {appointment_id} is already confirmed",
+            )
+
+        if existing_appointment.admin_id is not None:
+            if existing_appointment.admin_id != admin_id:
+                raise InvalidAppointmentStateException(
+                    detail=f"Appointment with id {appointment_id} is already assigned to a different admin",
+                )
+        else:
+            existing_appointment.admin_id = admin_id
+            existing_appointment.status = AppointmentStatus.CONFIRMED
+
+        return await self.appointment_repository.update(existing_appointment)
 
     async def get_all_appointments(
         self,

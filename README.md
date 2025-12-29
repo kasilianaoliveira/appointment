@@ -34,15 +34,11 @@ O projeto segue uma arquitetura em camadas (Layered Architecture) com separaçã
 
 Principais tabelas:
 
-- users: usuários do sistema (admin e cliente)
-
-- services: catálogo de serviços disponíveis
-
-- appointments: agendamentos realizados
-
-- appointment_services: relação entre agendamentos e serviços
-
-- admin_availability: horários disponíveis dos administradores
+- **users**: usuários do sistema (admin e cliente)
+- **services**: catálogo de serviços disponíveis
+- **appointments**: agendamentos realizados
+- **appointment_services**: relação entre agendamentos e serviços (tabela de junção)
+- **admin_daily_limits**: limites diários de agendamentos por administrador
 
 ## 🔐 Autenticação e Autorização
 
@@ -103,7 +99,9 @@ src/
 │   ├── exceptions/
 │   │   ├── base_exception.py
 │   │   ├── error_handlers.py
-│   │   └── user_expection.py
+│   │   ├── appointment_exception.py
+│   │   ├── services_exception.py
+│   │   └── user_exception.py
 │   ├── logging_config.py
 │   ├── security.py           # JWT e hash de senhas
 │   └── settings.py           # Configurações da aplicação
@@ -112,34 +110,76 @@ src/
 │   ├── auth_dependencies.py
 │   └── pagination_dependencies.py
 │
-├── enums/                    # Enumerações
+├── enums/                 
 │   ├── user_role.py
-│   └── user_date_filter.py
+│   ├── appointment_status.py
+│   ├── appointment_weekday.py
+│   └── date_filter.py
 │
 ├── models/                   # Modelos SQLAlchemy (ORM)
 │   ├── user_model.py
 │   ├── service_model.py
 │   ├── appointment_model.py
 │   ├── appointment_service_model.py
-│   └── admin_availability_model.py
+│   └── admin_daily_limit_model.py
 │
 ├── repositories/            # Camada de acesso a dados
 │   ├── interfaces/
-│   │   └── user_interface.py
-│   └── user_repository.py
+│   │   ├── user_interface.py
+│   │   ├── services_interface.py
+│   │   └── appointments_interface.py
+│   ├── user_repository.py
+│   ├── services_repository.py
+│   └── appointments_repository.py
 │
 ├── routers/                 # Rotas/Endpoints da API
-│   └── user_router.py
+│   ├── user_router.py
+│   ├── services_router.py
+│   └── appointments_router.py
 │
 ├── schemas/                 # Schemas Pydantic (validação)
 │   ├── user_schema.py
+│   ├── services_schema.py
+│   ├── appointments_schema.py
 │   └── token_schema.py
 │
-└── services/                # Lógica de negócio
-    ├── auth_service.py
-    └── user_service.py
+├── services/                # Lógica de negócio
+│   ├── auth_service.py
+│   ├── user_service.py
+│   ├── services_service.py
+│   └── appointments_service.py
+│
+└── utils/                   # Utilitários
+    └── date_filters.py
 ```
 
 **Fluxo de dados:** `Router → Service → Repository → Model`
+
+## 📡 Endpoints da API
+
+### Usuários (`/users`)
+- `POST /users/` - Criar usuário (público)
+- `POST /users/login` - Login e obter token JWT (público)
+- `GET /users/me` - Obter dados do usuário autenticado
+- `PUT /users/{id}` - Atualizar usuário
+- `DELETE /users/{id}` - Deletar usuário
+- `GET /users/detail/{id}` - Obter usuário por ID (admin)
+- `GET /users/` - Listar clientes com filtros (admin)
+
+### Serviços (`/services`)
+- `GET /services/` - Listar todos os serviços (autenticado)
+- `GET /services/{id}` - Obter serviço por ID (admin)
+- `POST /services/` - Criar serviço (admin)
+- `PUT /services/{id}` - Atualizar serviço (admin)
+- `DELETE /services/{id}` - Deletar serviço (admin)
+
+### Agendamentos (`/appointments`)
+- `POST /appointments/` - Criar agendamento (cliente)
+- `GET /appointments/` - Listar agendamentos com filtros (cliente/admin)
+- `GET /appointments/{id}` - Obter agendamento por ID
+- `PUT /appointments/{id}` - Atualizar agendamento (cliente, apenas PENDING)
+- `POST /appointments/{id}/cancel` - Cancelar agendamento (cliente/admin)
+- `POST /appointments/{id}/confirm` - Confirmar agendamento (admin)
+- `DELETE /appointments/{id}` - Deletar agendamento (admin)
 
 ## 🧪 Testes

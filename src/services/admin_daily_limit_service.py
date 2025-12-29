@@ -49,12 +49,12 @@ class AdminDailyLimitService:
     ) -> AdminDailyLimitModel:
         existing_admin_daily_limit = (
             await self.admin_daily_limit_repository.get_by_week_day(
-                admin_daily_limit.week_day
+                admin_id, admin_daily_limit.week_day
             )
         )
         if existing_admin_daily_limit:
             raise AdminDailyLimitAlreadyExistsException(
-                detail=f"Admin daily limit with week day {admin_daily_limit.week_day} already exists",
+                detail=f"Admin daily limit with week day {admin_daily_limit.week_day} already exists for this admin",
             )
         admin_daily_limit_model = AdminDailyLimitModel(
             admin_id=admin_id,

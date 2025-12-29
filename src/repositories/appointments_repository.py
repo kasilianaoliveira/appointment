@@ -34,7 +34,9 @@ class AppointmentsRepository(IAppointmentsRepository):
 
     async def get_by_id(self, id: UUID) -> AppointmentModel | None:
         result = await self.session.execute(
-            select(AppointmentModel).where(AppointmentModel.id == id)
+            select(AppointmentModel)
+            .options(selectinload(AppointmentModel.services).selectinload("service"))
+            .where(AppointmentModel.id == id)
         )
         return result.scalar_one_or_none()
 

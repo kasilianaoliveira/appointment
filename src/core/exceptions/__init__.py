@@ -1,5 +1,9 @@
 """Custom exceptions for the application."""
 
+from core.exceptions.admin_daily_limit_exception import (
+    AdminDailyLimitAlreadyExistsException,
+    AdminDailyLimitNotFoundException,
+)
 from core.exceptions.appointment_exception import (
     AdminNotAvailableException,
     AppointmentAlreadyAcceptedException,
@@ -40,4 +44,6 @@ __all__ = [
     "AppointmentAlreadyAcceptedException",
     "AdminNotAvailableException",
     "InvalidAppointmentStateException",
+    "AdminDailyLimitNotFoundException",
+    "AdminDailyLimitAlreadyExistsException",
 ]

@@ -61,9 +61,9 @@ class UserRepository(IUserRepository):
         )
 
         if name:
-            stmt = stmt.where(UserModel.name.ilike(f"%{name}%"))
+            stmt = stmt.where(UserModel.name.ilike(f"{name}%"))
         if email:
-            stmt = stmt.where(UserModel.email.ilike(f"%{email}%"))
+            stmt = stmt.where(UserModel.email.ilike(f"{email}%"))
 
         if date_filter and date_filter in DATE_FILTERS:
             date_filter_timedelta = get_date_filter(date_filter)

@@ -4,12 +4,12 @@ from datetime import date, datetime
 from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
-from enums import AppointmentStatus
 from sqlalchemy import Date, DateTime, Enum, ForeignKey, String, func
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from core.db.base import Base
+from enums import AppointmentStatus
 
 if TYPE_CHECKING:
     from models.appointment_service_model import AppointmentServiceModel

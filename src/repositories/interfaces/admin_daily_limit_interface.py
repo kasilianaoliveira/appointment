@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from uuid import UUID
+
 from enums import WeekDay
 from models.admin_daily_limit_model import AdminDailyLimitModel
 

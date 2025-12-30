@@ -1,4 +1,3 @@
-from decimal import Decimal
 from uuid import UUID
 
 from sqlalchemy import select
@@ -6,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from models import ServiceModel
 from repositories.interfaces.services_interface import IServiceRepository
-from schemas.services_schema import ServiceCreate, ServiceUpdate
+from schemas.services_schema import ServiceUpdate
 
 
 class ServicesRepository(IServiceRepository):

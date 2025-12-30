@@ -1,4 +1,4 @@
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from uuid import UUID
 
 from fastapi_pagination import Page, Params
@@ -9,9 +9,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from enums import DateFilter, UserRole
 from models import UserModel
 from repositories.interfaces.user_interface import IUserRepository
-from utils.date_filters import get_date_filter
-
 from utils import DATE_FILTERS
+from utils.date_filters import get_date_filter
 
 
 class UserRepository(IUserRepository):
@@ -38,10 +37,10 @@ class UserRepository(IUserRepository):
         return result.scalar_one_or_none()
 
     async def update(self, user: UserModel) -> UserModel:
-        self.session.add(user)
+        merged_user = await self.session.merge(user)
         await self.session.commit()
-        await self.session.refresh(user)
-        return user
+        await self.session.refresh(merged_user)
+        return merged_user
 
     async def delete(self, user: UserModel) -> None:
 

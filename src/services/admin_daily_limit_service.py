@@ -1,11 +1,14 @@
 import logging
 from uuid import UUID
+
+from fastapi import Depends
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from core.db.dependencies import get_session
 from core.exceptions import (
     AdminDailyLimitAlreadyExistsException,
     AdminDailyLimitNotFoundException,
 )
-from fastapi import Depends
 from models.admin_daily_limit_model import AdminDailyLimitModel
 from repositories.admin_daily_limit_repository import AdminDailyLimitRepository
 from repositories.interfaces.admin_daily_limit_interface import (
@@ -15,16 +18,21 @@ from schemas.admin_daily_limit_schema import (
     AdminDailyLimitCreate,
     AdminDailyLimitUpdate,
 )
-from sqlalchemy.ext.asyncio import AsyncSession
 
 logger = logging.getLogger(__name__)
 
 
 class AdminDailyLimitService:
-    def __init__(self, admin_daily_limit_repository: IAdminDailyLimitRepository):
+    def __init__(
+        self,
+        admin_daily_limit_repository: IAdminDailyLimitRepository,
+    ):
         self.admin_daily_limit_repository = admin_daily_limit_repository
 
-    async def get_admin_daily_limit_by_id(self, id: UUID) -> AdminDailyLimitModel:
+    async def get_admin_daily_limit_by_id(
+        self,
+        id: UUID,
+    ) -> AdminDailyLimitModel:
         existing_admin_daily_limit = await self.admin_daily_limit_repository.get_by_id(
             id
         )

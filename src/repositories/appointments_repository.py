@@ -1,18 +1,20 @@
 from datetime import UTC, datetime
 from uuid import UUID
-from enums import AppointmentStatus, DateFilter
-from enums.date_filter import FutureDateFilter
+
 from fastapi_pagination import Page, Params
 from fastapi_pagination.ext.sqlalchemy import paginate
-from repositories.interfaces.appointments_interface import IAppointmentRepository
-from schemas import AppointmentCreate
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
+
+from enums import AppointmentStatus
+from enums.date_filter import FutureDateFilter
 from models import AppointmentModel
 from models.appointment_service_model import AppointmentServiceModel
-
-from sqlalchemy.orm import selectinload
-from utils import DATE_FILTERS, FUTURE_DATE_FILTERS, get_date_filter
+from repositories.interfaces.appointments_interface import (
+    IAppointmentRepository,
+)
+from utils import FUTURE_DATE_FILTERS
 
 
 class AppointmentsRepository(IAppointmentRepository):

@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
-
 from uuid import UUID
 
-from enums import AppointmentStatus, FutureDateFilter
 from fastapi_pagination import Page, Params
+
+from enums import AppointmentStatus, FutureDateFilter
 from models import AppointmentModel
 
 

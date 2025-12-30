@@ -1,8 +1,11 @@
-from datetime import date as DateType, datetime
+from datetime import date as DateType
+from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
-from enums import AppointmentStatus
+
 from pydantic import BaseModel, model_validator
+
+from enums import AppointmentStatus
 from schemas import ServiceRead
 
 

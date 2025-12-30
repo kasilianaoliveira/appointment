@@ -2,7 +2,6 @@ from datetime import timedelta
 
 from enums import DateFilter, FutureDateFilter
 
-
 DATE_FILTERS = {
     DateFilter.LAST_7_DAYS: timedelta(days=7),
     DateFilter.LAST_30_DAYS: timedelta(days=30),

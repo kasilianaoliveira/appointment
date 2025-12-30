@@ -9,7 +9,6 @@ from dependencies.pagination_dependencies import get_pagination_params
 from enums import AppointmentStatus, FutureDateFilter, UserRole
 from models import UserModel
 from schemas.appointments_schema import (
-    AppointmentAdminUpdate,
     AppointmentCancel,
     AppointmentClientUpdate,
     AppointmentCreate,
@@ -59,11 +58,10 @@ async def get_appointment_by_id(
     """Busca um appointment por ID."""
     appointment = await service.get_appointment_by_id(id)
 
-    if (
-        current_user.role != UserRole.ADMIN
-        and appointment.client_id != current_user.id
-        and appointment.admin_id != current_user.id
-    ):
+    if current_user.role != UserRole.ADMIN and current_user.id not in {
+        appointment.client_id,
+        appointment.admin_id,
+    }:
         raise HTTPException(
             status_code=403, detail="You don't have permission to view this appointment"
         )

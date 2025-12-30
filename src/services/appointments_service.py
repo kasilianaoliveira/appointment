@@ -1,24 +1,26 @@
 from datetime import UTC, datetime
 from uuid import UUID
+
+from fastapi import Depends
+from fastapi_pagination import Page, Params
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from core.db.dependencies import get_session
 from core.exceptions import (
     AppointmentNotFoundException,
     InvalidAppointmentStateException,
 )
-from core.exceptions.appointment_exception import AppointmentsNotFoundException
 from enums import AppointmentStatus, FutureDateFilter
-from fastapi import Depends
-from fastapi_pagination import Page, Params
-from repositories.appointments_repository import AppointmentsRepository
 from models.appointment_model import AppointmentModel
 from models.appointment_service_model import AppointmentServiceModel
-
-from repositories.interfaces.appointments_interface import IAppointmentRepository
+from repositories.appointments_repository import AppointmentsRepository
+from repositories.interfaces.appointments_interface import (
+    IAppointmentRepository,
+)
 from schemas.appointments_schema import (
     AppointmentClientUpdate,
     AppointmentCreate,
 )
-from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class AppointmentsService:
@@ -118,10 +120,10 @@ class AppointmentsService:
                 detail=f"Appointment with id {appointment_id} can only be cancelled by the client or assigned admin",
             )
 
-        if existing_appointment.status not in (
+        if existing_appointment.status not in {
             AppointmentStatus.PENDING,
             AppointmentStatus.CONFIRMED,
-        ):
+        }:
             raise InvalidAppointmentStateException(
                 detail="This appointment cannot be cancelled",
             )

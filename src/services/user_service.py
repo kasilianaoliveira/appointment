@@ -9,7 +9,6 @@ from core.db.dependencies import get_session
 from core.exceptions import (
     UserAlreadyExistsException,
     UserNotFoundException,
-    UsersNotFoundException,
 )
 from core.security import (
     get_password_hash,

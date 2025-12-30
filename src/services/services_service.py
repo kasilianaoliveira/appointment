@@ -1,8 +1,7 @@
-from decimal import Decimal
 import logging
+from decimal import Decimal
 from uuid import UUID
 
-from core.exceptions.services_exception import InvalidServicePriceException
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -12,6 +11,7 @@ from core.exceptions import (
     ServiceNotFoundException,
     ServicesNotFoundException,
 )
+from core.exceptions.services_exception import InvalidServicePriceException
 from models import ServiceModel
 from repositories.interfaces.services_interface import IServiceRepository
 from repositories.services_repository import ServicesRepository
@@ -36,7 +36,7 @@ class ServicesService:
 
         if service.price <= 0:
             raise InvalidServicePriceException(
-                detail=f"Service price must be greater than 0"
+                detail="Service price must be greater than 0"
             )
 
         service_model = ServiceModel(

@@ -3,12 +3,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
-from enums import WeekDay
 from sqlalchemy import Enum, ForeignKey, Integer, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from core.db.base import Base
+from enums import WeekDay
 
 if TYPE_CHECKING:
     from models.user_model import UserModel

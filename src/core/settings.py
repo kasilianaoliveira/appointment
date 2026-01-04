@@ -6,6 +6,7 @@ from urllib.parse import quote_plus
 
 from pydantic import Field, SecretStr, computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from dotenv import load_dotenv
 
 
 class Settings(BaseSettings):
@@ -40,11 +41,25 @@ class Settings(BaseSettings):
     DATABASE_URL: str | None = None
 
     # JWT Settings
-    JWT_SECRET_KEY: SecretStr = SecretStr(
-        "09359a47b78e35d45536993118deb864fff983daaca8b429260f08d406310398"
-    )
+    JWT_SECRET_KEY: SecretStr = SecretStr("...")
     JWT_ALGORITHM: str = "HS256"
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=30, ge=1)
+
+    # Redis / Celery
+    REDIS_HOST: str = "localhost"
+    REDIS_PORT: int = Field(default=6379, ge=1, le=65535)
+    REDIS_DB: int = Field(default=0, ge=0)
+    REDIS_PASSWORD: SecretStr | None = None
+
+    # Email (SMTP)
+    MAIL_USERNAME: str
+    MAIL_PASSWORD: SecretStr
+    MAIL_FROM: str
+    MAIL_FROM_NAME: str = "Agendamentos KL FixByte"
+    MAIL_SERVER: str
+    MAIL_PORT: int = Field(default=587, ge=1, le=65535)
+    MAIL_STARTTLS: bool = True
+    MAIL_SSL_TLS: bool = False
 
     @computed_field
     def ASYNC_DATABASE_URL(self) -> str:
@@ -62,6 +77,20 @@ class Settings(BaseSettings):
             f"{self.POSTGRES_USER}:{password}"
             f"@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
         )
+
+    @computed_field
+    def REDIS_URL(self) -> str:
+        """
+        Redis URL for Redis.
+
+        Example:
+        redis://:password@host:port/db
+        """
+        password = (
+            f":{self.REDIS_PASSWORD.get_secret_value()}@" if self.REDIS_PASSWORD else ""
+        )
+
+        return f"redis://{password}{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
 
 
 @lru_cache(maxsize=1)

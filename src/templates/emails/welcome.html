@@ -5,80 +5,127 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Criação de conta realizada com sucesso!</title>
-  <link rel="stylesheet" href="styles/welcome.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
-<body>
-  <div class="outer-container">
-    <div class="welcome-container">
-      <div class="logo-container">
-        <div class="logo-circle">
-          <img
-            src="data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M40 10 L60 30 L50 40 L30 20 Z' fill='%2322c55e' opacity='0.8'/%3E%3Cpath d='M20 30 L40 50 L30 60 L10 40 Z' fill='%231e40af' opacity='0.8'/%3E%3Ccircle cx='45' cy='35' r='4' fill='%23f97316'/%3E%3C/svg%3E"
-            alt="Logo" width="80" height="80" class="logo-image" />
-        </div>
-      </div>
+<body style="margin:0; padding:0; background-color:#EAF0F3;">
 
-      <div class="welcome-section">
-        <p>
-          Olá <strong>João</strong>,
-        </p>
-        <p>
-          Seu cadastro foi realizado com sucesso na plataforma
-        </p>
+  <!-- Wrapper -->
+  <table width="100%" cellpadding="0" cellspacing="0" bgcolor="#EAF0F3">
+    <tr>
+      <td align="center" style="padding:30px 15px;">
 
-        <strong>Agendamentos KL FixByte</strong>
+        <!-- Welcome Container -->
+        <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;">
+          <tr>
+            <td align="center" style="padding-bottom:30px; font-family:Arial, Helvetica, sans-serif;">
 
-      </div>
-    </div>
-    <div class="main-content">
-      <div class="content-section">
+              <!-- Logo Circle -->
+              <table cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center" style="width:120px; height:120px; border-radius:60px; background-color:#FFFFFF;">
+                    <img src="{{ logo_small }}" alt="Logo" width="80" height="80" style="display:block;" />
+                  </td>
+                </tr>
+              </table>
 
-        <div class="secondary-logo-container">
-          <img src="assets/logo.png" alt="KL FixByte Logo" class="secondary-logo-image" />
-        </div>
+              <!-- Welcome Text -->
+              <p style="margin:20px 0 5px 0; font-size:18px; color:#000000;">
+                Olá{% if user_name %} <strong>{{ user_name }}</strong>{% endif %},
+              </p>
 
-        <div class="instruction-container">
-          <div class="instruction-section">
-            <p class="instruction-text">
-              A partir de agora, você pode acessar a plataforma e realizar seus agendamentos de forma rápida e segura.
-            </p>
-          </div>
+              <p style="margin:0; font-size:18px; color:#000000;">
+                Seu cadastro foi realizado com sucesso na plataforma
+              </p>
 
-          <div class="instruction-section-last">
-            <p class="instruction-text">
-              Consulte os serviços disponíveis, escolha a melhor data e acompanhe seus agendamentos em um único lugar.
-            </p>
-          </div>
-        </div>
+              <p style="margin:5px 0 0 0; font-size:18px; font-weight:bold; color:#000000;">
+                Agendamentos KL FixByte
+              </p>
 
-        <div class="button-container">
-          <a href="{{ access_url | default('#') }}" class="button-link">
-            Clique aqui para acessar
-          </a>
-        </div>
-      </div>
-    </div>
+            </td>
+          </tr>
+        </table>
 
-    <div class="footer">
-      <div class="social-container">
-        <a href="https://instagram.com/lucas_tech70" class="social-link">
-          <img
-            src="data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23f09433;stop-opacity:1' /%3E%3Cstop offset='25%25' style='stop-color:%23e6683c;stop-opacity:1' /%3E%3Cstop offset='50%25' style='stop-color:%23dc2743;stop-opacity:1' /%3E%3Cstop offset='75%25' style='stop-color:%23cc2366;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%23bc1888;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='24' height='24' rx='5' fill='url(%23grad)'/%3E%3Cpath d='M12 8.5C10.067 8.5 8.5 10.067 8.5 12C8.5 13.933 10.067 15.5 12 15.5C13.933 15.5 15.5 13.933 15.5 12C15.5 10.067 13.933 8.5 12 8.5ZM12 14C10.895 14 10 13.105 10 12C10 10.895 10.895 10 12 10C13.105 10 14 10.895 14 12C14 13.105 13.105 14 12 14Z' fill='white'/%3E%3Ccircle cx='15.5' cy='8.5' r='1' fill='white'/%3E%3Cpath d='M12 6.5C8.962 6.5 6.5 8.962 6.5 12C6.5 15.038 8.962 17.5 12 17.5C15.038 17.5 17.5 15.038 17.5 12C17.5 8.962 15.038 6.5 12 6.5ZM12 16C9.791 16 8 14.209 8 12C8 9.791 9.791 8 12 8C14.209 8 16 9.791 16 12C16 14.209 14.209 16 12 16Z' fill='white'/%3E%3C/svg%3E"
-            alt="Instagram" width="24" height="24" class="social-icon" />
-          <span class="social-text">@lucas_tech70</span>
-        </a>
-      </div>
+        <!-- Main Content -->
+        <table width="600" cellpadding="0" cellspacing="0" bgcolor="#FFFFFF"
+          style="max-width:600px; border-radius:10px;">
+          <tr>
+            <td style="padding:30px; font-family:Arial, Helvetica, sans-serif; color:#5E5E5E;">
 
-      <p class="copyright">
-        Copyright © 2025
-      </p>
+              <!-- Secondary Logo -->
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center" style="padding-bottom:20px;">
+                    <img src="{{ logo_main }}" alt="KL FixByte Logo" width="180" height="180" style="display:block;" />
+                  </td>
+                </tr>
+              </table>
 
-      <p class="brand-name">
-        KL FixByte
-      </p>
-    </div>
-  </div>
+              <!-- Instructions -->
+              <p
+                style="font-size:16px; line-height:1.6; margin:0 0 15px 0; border-bottom: 1px solid #E5E5E5; padding-bottom: 15px; margin-bottom: 15px;">
+                A partir de agora, você pode acessar a plataforma e realizar seus agendamentos de forma rápida e segura.
+              </p>
+
+              <p style="font-size:16px; line-height:1.6; margin:0 0 30px 0;">
+                Consulte os serviços disponíveis, escolha a melhor data e acompanhe seus agendamentos em um único lugar.
+              </p>
+
+              <!-- Button -->
+              <table align="center" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td bgcolor="#3490EC" style="border-radius:40px;">
+                    <a href="{{ access_url | default('#') }}" style="
+                         display:inline-block;
+                         padding:14px 40px;
+                         font-size:16px;
+                         font-weight:600;
+                         color:#FFFFFF;
+                         text-decoration:none;
+                         font-family:Arial, Helvetica, sans-serif;
+                       ">
+                      Clique aqui para acessar
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+            </td>
+          </tr>
+        </table>
+
+        <!-- Footer -->
+        <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;">
+          <tr>
+            <td align="center"
+              style="padding-top:25px; font-family:Arial, Helvetica, sans-serif; font-size:14px; color:#000000;">
+
+              <a href="https://instagram.com/lucas_tech70" style="text-decoration:none; color:inherit;">
+                <img src="{{ instagram_icon }}" alt="Instagram" width="36" height="36"
+                  style="display:inline-block; vertical-align:middle;" />
+                <span style="margin-left:8px; vertical-align:middle;">
+                  @lucas_tech70
+                </span>
+              </a>
+
+              <p style="margin:15px 0 5px 0;">
+                Copyright © 2025
+              </p>
+
+              <p style="margin:0; font-weight:bold;">
+                KL FixByte
+              </p>
+
+            </td>
+          </tr>
+        </table>
+
+      </td>
+    </tr>
+  </table>
+
 </body>
 
 </html>

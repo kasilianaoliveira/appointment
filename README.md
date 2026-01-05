@@ -149,6 +149,10 @@ src/
 │   ├── services_service.py
 │   └── appointments_service.py
 │
+├── templates/               # Templates de email
+│   └── emails/
+│       └── welcome.html     # Template de email de boas-vindas
+│
 └── utils/                   # Utilitários
     └── date_filters.py
 ```

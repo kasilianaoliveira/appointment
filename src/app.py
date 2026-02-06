@@ -8,8 +8,10 @@ from routers.appointments_router import (
     protected_user_router as appointments_user_router,
 )
 from routers.services_router import public_services_router, services_router
+from routers.storage_router import router as storage_router
 from routers.user_router import protected_user_router, user_public_router
 from routers.admin_daily_limit_router import protected_admin_daily_router
+from routers.auth_router import auth_public_router
 
 setup_logging()
 
@@ -21,7 +23,9 @@ def create_app() -> FastAPI:
     )
     app.include_router(user_public_router)
     app.include_router(protected_user_router)
-
+    
+    app.include_router(auth_public_router)
+    
     app.include_router(public_services_router)
     app.include_router(services_router)
 
@@ -29,6 +33,7 @@ def create_app() -> FastAPI:
     app.include_router(appointments_admin_router)
 
     app.include_router(protected_admin_daily_router)
+    #app.include_router(storage_router)
 
     register_error_handlers(app)
 

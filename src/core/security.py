@@ -10,7 +10,7 @@ settings = get_settings()
 
 password_hash = PasswordHash.recommended()
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -25,12 +25,7 @@ def create_access_token(
     data: dict,
     expires_delta: timedelta | None = None,
 ) -> tuple[str, int]:
-    """
-    Cria um token JWT e retorna o token e o tempo de expiração em segundos.
-
-    Returns:
-        tuple[str, int]: (token, expires_in_seconds)
-    """
+    
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta

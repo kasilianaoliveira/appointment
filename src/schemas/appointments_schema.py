@@ -13,7 +13,7 @@ class AppointmentCreate(BaseModel):
     date: DateType
     services: list[UUID]
 
-
+#TODO: Adicionar campo meio de pagamento (pix, cartão de crédito, dinheiro)
 class AppointmentRead(BaseModel):
     id: UUID
     date: DateType

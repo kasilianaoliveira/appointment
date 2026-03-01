@@ -22,7 +22,10 @@ class AdminDailyLimitModel(Base):
     )
 
     admin_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True
+        PG_UUID(as_uuid=True),
+        ForeignKey("users.id"),
+        nullable=False,
+        index=True,
     )
     week_day: Mapped[WeekDay] = mapped_column(
         Enum(WeekDay, name="week_day"), nullable=False

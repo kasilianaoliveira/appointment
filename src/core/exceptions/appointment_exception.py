@@ -19,7 +19,8 @@ class AppointmentAlreadyExistsException(BaseAppException):
         super().__init__(
             message="Appointment already exists",
             status_code=400,
-            detail=detail or "An appointment with these details already exists",
+            detail=detail
+            or "An appointment with these details already exists",
         )
 
 
@@ -52,7 +53,8 @@ class AppointmentAlreadyAcceptedException(BaseAppException):
         super().__init__(
             message="Appointment already accepted",
             status_code=400,
-            detail=detail or "This appointment has already been accepted by an admin",
+            detail=detail
+            or "This appointment has already been accepted by an admin",
         )
 
 

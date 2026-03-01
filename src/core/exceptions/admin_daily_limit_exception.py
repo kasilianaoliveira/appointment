@@ -19,5 +19,6 @@ class AdminDailyLimitAlreadyExistsException(BaseAppException):
         super().__init__(
             message="Admin daily limit already exists",
             status_code=400,
-            detail=detail or "An admin daily limit with these details already exists",
+            detail=detail
+            or "An admin daily limit with these details already exists",
         )

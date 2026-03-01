@@ -33,8 +33,8 @@ class AdminDailyLimitService:
         self,
         id: UUID,
     ) -> AdminDailyLimitModel:
-        existing_admin_daily_limit = await self.admin_daily_limit_repository.get_by_id(
-            id
+        existing_admin_daily_limit = (
+            await self.admin_daily_limit_repository.get_by_id(id)
         )
         if not existing_admin_daily_limit:
             raise AdminDailyLimitNotFoundException(
@@ -44,7 +44,9 @@ class AdminDailyLimitService:
         return existing_admin_daily_limit
 
     async def get_all_admin_daily_limits(self) -> list[AdminDailyLimitModel]:
-        existing_admin_daily_limits = await self.admin_daily_limit_repository.get_all()
+        existing_admin_daily_limits = (
+            await self.admin_daily_limit_repository.get_all()
+        )
         if not existing_admin_daily_limits:
             raise AdminDailyLimitNotFoundException(
                 detail="No admin daily limits found",
@@ -70,13 +72,15 @@ class AdminDailyLimitService:
             limit=admin_daily_limit.limit,
         )
         logger.info(f"Admin daily limit created: {admin_daily_limit_model}")
-        return await self.admin_daily_limit_repository.save(admin_daily_limit_model)
+        return await self.admin_daily_limit_repository.save(
+            admin_daily_limit_model
+        )
 
     async def update_admin_daily_limit(
         self, id: UUID, admin_daily_limit: AdminDailyLimitUpdate
     ) -> AdminDailyLimitModel:
-        existing_admin_daily_limit = await self.admin_daily_limit_repository.get_by_id(
-            id
+        existing_admin_daily_limit = (
+            await self.admin_daily_limit_repository.get_by_id(id)
         )
         if not existing_admin_daily_limit:
             raise AdminDailyLimitNotFoundException(
@@ -90,8 +94,8 @@ class AdminDailyLimitService:
         )
 
     async def delete_admin_daily_limit(self, id: UUID) -> None:
-        existing_admin_daily_limit = await self.admin_daily_limit_repository.get_by_id(
-            id
+        existing_admin_daily_limit = (
+            await self.admin_daily_limit_repository.get_by_id(id)
         )
         if not existing_admin_daily_limit:
             raise AdminDailyLimitNotFoundException(

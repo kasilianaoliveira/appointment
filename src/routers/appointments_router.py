@@ -63,7 +63,8 @@ async def get_appointment_by_id(
         appointment.admin_id,
     }:
         raise HTTPException(
-            status_code=403, detail="You don't have permission to view this appointment"
+            status_code=403,
+            detail="You don't have permission to view this appointment",
         )
     return appointment
 
@@ -80,7 +81,9 @@ async def get_all_appointments(
     status: AppointmentStatus | None = None,
     date_filter: FutureDateFilter | None = None,
 ):
-    client_id = None if current_user.role == UserRole.ADMIN else current_user.id
+    client_id = (
+        None if current_user.role == UserRole.ADMIN else current_user.id
+    )
     admin_id = current_user.id if current_user.role == UserRole.ADMIN else None
 
     return await service.get_all_appointments(
@@ -119,7 +122,9 @@ async def cancel_appointment(
     service: Annotated[AppointmentsService, Depends(get_appointments_service)],
 ):
 
-    client_id = current_user.id if current_user.role == UserRole.CLIENT else None
+    client_id = (
+        current_user.id if current_user.role == UserRole.CLIENT else None
+    )
     admin_id = current_user.id if current_user.role == UserRole.ADMIN else None
 
     return await service.cancel_appointment(

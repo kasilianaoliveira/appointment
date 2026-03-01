@@ -28,7 +28,7 @@ def create_app() -> FastAPI:
     )
     app.add_middleware(
         SessionMiddleware,  # ty:ignore[invalid-argument-type]
-        secret_key=config.SECRET_KEY.get_secret_value()
+        secret_key=config.SECRET_KEY.get_secret_value(),
     )
 
     app.include_router(user_public_router)

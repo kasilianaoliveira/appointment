@@ -24,11 +24,10 @@ class UserModel(Base):
         PG_UUID(as_uuid=True), primary_key=True, default=uuid4, index=True
     )
     name: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
-    auth_provider: Mapped[AuthProvider] = mapped_column(Enum(
-        AuthProvider,
-        name="auth_provider"),
+    auth_provider: Mapped[AuthProvider] = mapped_column(
+        Enum(AuthProvider, name="auth_provider"),
         nullable=False,
-        default=AuthProvider.LOCAL
+        default=AuthProvider.LOCAL,
     )
     email: Mapped[str] = mapped_column(
         String(150),
@@ -37,8 +36,7 @@ class UserModel(Base):
         index=True,
     )
     password_hash: Mapped[str | None] = mapped_column(
-        String(255),
-        nullable=True
+        String(255), nullable=True
     )
     role: Mapped[UserRole] = mapped_column(
         Enum(UserRole, name="user_role"), nullable=False

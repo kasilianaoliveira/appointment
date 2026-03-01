@@ -46,8 +46,7 @@ async def get_me(
 async def google_login(request: Request):
 
     return await oauth.google.authorize_redirect(
-        request,
-        redirect_uri=settings.GOOGLE_REDIRECT_URI
+        request, redirect_uri=settings.GOOGLE_REDIRECT_URI
     )
 
 

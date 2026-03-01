@@ -6,7 +6,6 @@ from models.admin_daily_limit_model import AdminDailyLimitModel
 
 
 class IAdminDailyLimitRepository(ABC):
-
     @abstractmethod
     async def get_by_id(self, id: UUID) -> AdminDailyLimitModel | None:
         pass

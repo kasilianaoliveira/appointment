@@ -111,9 +111,12 @@ class AppointmentsService:
             )
 
         is_client = (
-            client_id is not None and existing_appointment.client_id == client_id
+            client_id is not None
+            and existing_appointment.client_id == client_id
         )
-        is_admin = admin_id is not None and existing_appointment.admin_id == admin_id
+        is_admin = (
+            admin_id is not None and existing_appointment.admin_id == admin_id
+        )
 
         if not (is_client or is_admin):
             raise InvalidAppointmentStateException(
@@ -177,7 +180,9 @@ class AppointmentsService:
         self,
         appointment_id: UUID,
     ) -> AppointmentModel:
-        appointment = await self.appointment_repository.get_by_id(appointment_id)
+        appointment = await self.appointment_repository.get_by_id(
+            appointment_id
+        )
         if not appointment:
             raise AppointmentNotFoundException(
                 detail=f"Appointment with id {appointment_id} not found",

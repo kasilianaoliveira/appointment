@@ -1,16 +1,14 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Request, status
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import APIRouter, Depends, status
 from fastapi_pagination import Page, Params
 
 from dependencies.auth_dependencies import get_current_user, require_admin_user
 from dependencies.pagination_dependencies import get_pagination_params
 from enums import DateFilter
 from models import UserModel
-from schemas import TokenSchema, UserCreate, UserRead, UserUpdate
-from services.auth_service import AuthService, get_auth_service
+from schemas import UserCreate, UserRead, UserUpdate
 from services.user_service import UserService, get_user_service
 
 user_public_router = APIRouter(prefix="/users", tags=["Users"])

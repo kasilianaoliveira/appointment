@@ -93,9 +93,7 @@ class AuthService:
             existing_user = await self.user_repository.save(user_model)
             logger.info(f"New user created with Google OAuth: {existing_user}")
 
-        token, expires_in = create_access_token(
-            {"sub": str(existing_user.id)}
-        )
+        token, expires_in = create_access_token({"sub": str(existing_user.id)})
         return TokenSchema(
             access_token=token,
             token_type="bearer",

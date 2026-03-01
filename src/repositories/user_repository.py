@@ -67,6 +67,7 @@ class UserRepository(IUserRepository):
         if date_filter and date_filter in DATE_FILTERS:
             date_filter_timedelta = get_date_filter(date_filter)
             stmt = stmt.where(
-                UserModel.created_at >= datetime.now(UTC) - date_filter_timedelta
+                UserModel.created_at
+                >= datetime.now(UTC) - date_filter_timedelta
             )
         return await paginate(self.session, stmt, params)

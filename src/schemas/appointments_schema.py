@@ -13,7 +13,8 @@ class AppointmentCreate(BaseModel):
     date: DateType
     services: list[UUID]
 
-#TODO: Adicionar campo meio de pagamento (pix, cartão de crédito, dinheiro)
+
+# TODO: Adicionar campo meio de pagamento (pix, cartão de crédito, dinheiro)
 class AppointmentRead(BaseModel):
     id: UUID
     date: DateType
@@ -34,7 +35,6 @@ class AppointmentRead(BaseModel):
     @classmethod
     def extract_services(cls, data):
         if hasattr(data, "services"):
-
             result = {
                 key: getattr(data, key)
                 for key in cls.model_fields.keys()

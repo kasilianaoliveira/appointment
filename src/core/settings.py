@@ -53,7 +53,9 @@ class Settings(BaseSettings):
     # Email (Resend)
     RESEND_API_KEY: SecretStr | None = None
     # Nota: Use um domínio verificado no Resend ou o email de teste onboarding@resend.dev
-    RESEND_FROM_EMAIL: str = "Agendamentos KL FixByte <contato@klfixbyte.com.br>"
+    RESEND_FROM_EMAIL: str = (
+        "Agendamentos KL FixByte <contato@klfixbyte.com.br>"
+    )
 
     # MinIO / S3 Storage
     MINIO_ENDPOINT: str = "localhost"

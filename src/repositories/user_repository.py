@@ -43,7 +43,6 @@ class UserRepository(IUserRepository):
         return merged_user
 
     async def delete(self, user: UserModel) -> None:
-
         await self.session.delete(user)
         await self.session.commit()
 

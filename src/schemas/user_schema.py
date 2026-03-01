@@ -4,14 +4,16 @@ from uuid import UUID
 from pydantic import BaseModel
 
 from enums import UserRole
+from enums.auth_provider import AuthProvider
 
 
 class UserCreate(BaseModel):
     name: str
-    password: str
+    password: str | None = None
     email: str
     phone: str
     role: UserRole
+    auth_provider: AuthProvider = AuthProvider.LOCAL
 
 
 class UserRead(BaseModel):

@@ -34,7 +34,7 @@ class AuthService:
                 detail="Incorrect email or password",
             )
 
-        if not verify_password(password, existing_user.password_hash):
+        if not verify_password(password, existing_user.password_hash or ""):
             raise HTTPException(
                 status_code=401,
                 detail="Incorrect email or password",
@@ -79,11 +79,28 @@ class AuthService:
             raise credentials_exception
         return user
 
-    @staticmethod
-    def get_current_active_user(current_user: UserModel) -> UserModel:
-        if current_user.disabled:
-            raise HTTPException(status_code=400, detail="Inactive user")
-        return current_user
+    async def authenticate_google_user(
+        self, email: str, name: str | None = None
+    ) -> TokenSchema:
+        existing_user = await self.user_repository.get_by_email(email)
+
+        if not existing_user:
+            user_model = UserModel(
+                name=name or email.split("@", maxsplit=1)[0],
+                email=email,
+                role="client",
+            )
+            existing_user = await self.user_repository.save(user_model)
+            logger.info(f"New user created with Google OAuth: {existing_user}")
+
+        token, expires_in = create_access_token(
+            {"sub": str(existing_user.id)}
+        )
+        return TokenSchema(
+            access_token=token,
+            token_type="bearer",
+            expires_in=expires_in,
+        )
 
 
 def get_auth_service(db: AsyncSession = Depends(get_session)) -> AuthService:

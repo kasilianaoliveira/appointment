@@ -6,7 +6,6 @@ from urllib.parse import quote_plus
 
 from pydantic import Field, SecretStr, computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from dotenv import load_dotenv
 
 
 class Settings(BaseSettings):
@@ -51,15 +50,32 @@ class Settings(BaseSettings):
     REDIS_DB: int = Field(default=0, ge=0)
     REDIS_PASSWORD: SecretStr | None = None
 
-    # Email (SMTP)
-    MAIL_USERNAME: str
-    MAIL_PASSWORD: SecretStr
-    MAIL_FROM: str
-    MAIL_FROM_NAME: str = "Agendamentos KL FixByte"
-    MAIL_SERVER: str
-    MAIL_PORT: int = Field(default=587, ge=1, le=65535)
-    MAIL_STARTTLS: bool = True
-    MAIL_SSL_TLS: bool = False
+    # Email (Resend)
+    RESEND_API_KEY: SecretStr | None = None
+    # Nota: Use um domínio verificado no Resend ou o email de teste onboarding@resend.dev
+    RESEND_FROM_EMAIL: str = "Agendamentos KL FixByte <contato@klfixbyte.com.br>"
+
+    # MinIO / S3 Storage
+    MINIO_ENDPOINT: str = "localhost"
+    MINIO_PORT: int = Field(default=9000, ge=1, le=65535)
+    MINIO_ACCESS_KEY: str = "minioadmin"
+    MINIO_SECRET_KEY: SecretStr = SecretStr("minioadmin")
+    MINIO_BUCKET_NAME: str = "appointment"
+    MINIO_USE_SSL: bool = False
+    MINIO_PUBLIC_URL: str | None = None  # URL pública para acessar as imagens
+
+    # Google
+    GOOGLE_CLIENT_ID: str | None = None
+    GOOGLE_CLIENT_SECRET: SecretStr = SecretStr("...")
+    GOOGLE_REDIRECT_URI: str | None = None
+    SECRET_KEY: SecretStr = SecretStr("...")
+    FRONTEND_URL: str = "http://localhost:3000/dashboard"
+
+    @computed_field
+    def MINIO_URL(self) -> str:
+        """MinIO endpoint URL."""
+        protocol = "https" if self.MINIO_USE_SSL else "http"
+        return f"{protocol}://{self.MINIO_ENDPOINT}:{self.MINIO_PORT}"
 
     @computed_field
     def ASYNC_DATABASE_URL(self) -> str:
@@ -87,7 +103,9 @@ class Settings(BaseSettings):
         redis://:password@host:port/db
         """
         password = (
-            f":{self.REDIS_PASSWORD.get_secret_value()}@" if self.REDIS_PASSWORD else ""
+            f":{self.REDIS_PASSWORD.get_secret_value()}@"
+            if self.REDIS_PASSWORD
+            else ""
         )
 
         return f"redis://{password}{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"

@@ -3,13 +3,13 @@ from uuid import UUID
 
 from fastapi_pagination import Page, Params
 
+from enums import DateFilter
 from models import UserModel
-from schemas import UserCreate
 
 
 class IUserRepository(ABC):
     @abstractmethod
-    async def save(self, data: UserCreate) -> UserModel:
+    async def save(self, user: UserModel) -> UserModel:
         pass
 
     @abstractmethod
@@ -17,7 +17,7 @@ class IUserRepository(ABC):
         pass
 
     @abstractmethod
-    async def delete(self, id: UUID) -> None:
+    async def delete(self, user: UserModel) -> None:
         pass
 
     @abstractmethod
@@ -34,6 +34,6 @@ class IUserRepository(ABC):
         params: Params,
         name: str | None = None,
         email: str | None = None,
-        date_filter: str | None = None,
+        date_filter: DateFilter | None = None,
     ) -> Page[UserModel]:
         pass

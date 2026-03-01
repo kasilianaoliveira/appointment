@@ -10,6 +10,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from core.db.base import Base
 from enums import UserRole
+from enums.auth_provider import AuthProvider
 
 if TYPE_CHECKING:
     from models.admin_daily_limit_model import AdminDailyLimitModel
@@ -23,13 +24,22 @@ class UserModel(Base):
         PG_UUID(as_uuid=True), primary_key=True, default=uuid4, index=True
     )
     name: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
+    auth_provider: Mapped[AuthProvider] = mapped_column(Enum(
+        AuthProvider,
+        name="auth_provider"),
+        nullable=False,
+        default=AuthProvider.LOCAL
+    )
     email: Mapped[str] = mapped_column(
         String(150),
         nullable=False,
         unique=True,
         index=True,
     )
-    password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
+    password_hash: Mapped[str | None] = mapped_column(
+        String(255),
+        nullable=True
+    )
     role: Mapped[UserRole] = mapped_column(
         Enum(UserRole, name="user_role"), nullable=False
     )

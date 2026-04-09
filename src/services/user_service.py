@@ -37,7 +37,9 @@ class UserService:
 
         user_model = UserModel(
             name=user.name,
-            password_hash=get_password_hash(user.password),
+            password_hash=get_password_hash(user.password)
+            if user.password
+            else None,
             email=user.email,
             phone=user.phone,
             role=user.role,
@@ -107,7 +109,9 @@ class UserService:
         )
 
         if not existing_users.items:
-            return Page(items=[], total=0, page=params.page, size=params.size)
+            return Page(
+                items=[], total=0, page=params.page, size=params.size, pages=0
+            )
 
         return existing_users
 

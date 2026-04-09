@@ -22,6 +22,7 @@ class UserRead(BaseModel):
     email: str
     phone: str
     role: UserRole
+    auth_provider: AuthProvider
     created_at: datetime
     updated_at: datetime
 

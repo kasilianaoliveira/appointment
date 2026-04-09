@@ -25,6 +25,7 @@ dependencies = [
     "boto3>=1.35.0,<2.0.0",
     "resend>=2.19.0",
     "authlib>=1.6.8",
+    "itsdangerous>=2.2.0",
 ]
 
 [dependency-groups]

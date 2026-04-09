@@ -3,10 +3,10 @@ from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
 
-from pydantic import BaseModel, model_validator
+from pydantic import BaseModel, field_validator
 
 from enums import AppointmentStatus
-from schemas import ServiceRead
+from schemas.services_schema import ServiceRead
 
 
 class AppointmentCreate(BaseModel):
@@ -31,23 +31,17 @@ class AppointmentRead(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    @model_validator(mode="before")
+    @field_validator("services", mode="before")
     @classmethod
-    def extract_services(cls, data):
-        if hasattr(data, "services"):
-            result = {
-                key: getattr(data, key)
-                for key in cls.model_fields.keys()
-                if key != "services"
-            }
-            services = [
-                item.service
-                for item in data.services
-                if hasattr(item, "service") and item.service is not None
+    def extract_services(cls, value):
+        if isinstance(value, list):
+            return [
+                item.service if hasattr(item, "service") else item
+                for item in value
+                if (hasattr(item, "service") and item.service is not None)
+                or not hasattr(item, "service")
             ]
-            result["services"] = services
-            return result
-        return data
+        return value
 
     class Config:
         from_attributes = True

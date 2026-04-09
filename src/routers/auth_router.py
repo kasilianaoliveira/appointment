@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordRequestForm
 
 from core.oauth import oauth
@@ -32,9 +32,7 @@ async def login(
     return token_data
 
 
-@auth_public_router.get(
-    "/me", response_model=UserRead, status_code=status.HTTP_200_OK
-)
+@auth_public_router.get("/me", response_model=UserRead, status_code=status.HTTP_200_OK)
 async def get_me(
     current_user: Annotated[UserModel, Depends(get_current_user)],
 ):
@@ -57,12 +55,22 @@ async def google_callback(
 ):
     token = await oauth.google.authorize_access_token(request)
 
-    user_info = await oauth.google.parse_id_token(request, token)
-    user_info2 = token.get("userinfo")
-    print("User info:", user_info)
-    print("User info from token:", user_info2)
+    claims = token.get("userinfo") or {}
 
-    email = user_info2["email"]
-    name = user_info2.get("name")
+    if not claims:
+        userinfo_response = await oauth.google.get(
+            "https://openidconnect.googleapis.com/v1/userinfo",
+            token=token,
+        )
+        if userinfo_response.is_success:
+            claims = userinfo_response.json()
+
+    email = claims.get("email")
+    if not email:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Google account did not provide an email.",
+        )
+    name = claims.get("name")
 
     return await auth_service.authenticate_google_user(email=email, name=name)

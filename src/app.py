@@ -50,5 +50,5 @@ def create_app() -> FastAPI:
     return app
 
 
-app = create_app()
-add_pagination(app)
+app_fast = create_app()
+add_pagination(app_fast)

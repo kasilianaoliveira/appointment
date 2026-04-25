@@ -12,9 +12,9 @@ O projeto foi desenvolvido utilizando **FastAPI**, **PostgreSQL** e **SQLAlchemy
 A aplicação permite:
 
 - Cadastro e autenticação de usuários (admin e cliente)
-- Definição de serviços disponíveis
+- Serviços disponíveis
 - Cadastro de disponibilidade de administradores
-- Agendamento de serviços por clientes
+- Agendamento de serviços
 - Associação de múltiplos serviços a um mesmo agendamento
 - Notificações por e-mail (cadastro, agendamento e lembretes)
 
@@ -32,19 +32,42 @@ O projeto segue uma arquitetura em camadas (Layered Architecture) com separaçã
 
 ## 🧩 Modelagem de Dados
 
-Principais tabelas:
+![Diagrama de modelagem](docs/assets/diagrama.png)
 
-- **users**: usuários do sistema (admin e cliente)
-- **services**: catálogo de serviços disponíveis
-- **appointments**: agendamentos realizados
-- **appointment_services**: relação entre agendamentos e serviços (tabela de junção)
-- **admin_daily_limits**: limites diários de agendamentos por administrador
+O diagrama acima representa a base da modelagem relacional da aplicação. A estrutura
+é centrada no fluxo de agendamento, conectando clientes, administradores e os
+serviços associados a cada atendimento.
+
+Principais entidades e relacionamentos:
+
+- **User**: representa clientes e administradores, reunindo dados de identificação,
+  autenticação local ou via Google e informações de auditoria.
+- **Appointment**: concentra o ciclo completo do agendamento, incluindo cliente,
+  administrador, status, criação, aceite, recusa, cancelamento e proposta de
+  reagendamento.
+- **Servicos**: armazena o catálogo de serviços disponíveis, com nome, descrição,
+  preço e dados de auditoria.
+- **appointment_services**: tabela de associação entre agendamentos e serviços,
+  permitindo que um atendimento contenha múltiplos serviços.
+- **admin_weekly_capacity**: define a capacidade recorrente do administrador por
+  dia da semana.
+- **admin_daily_override**: permite sobrescrever a disponibilidade de um
+  administrador em uma data específica, inclusive marcando indisponibilidade.
+
+Em termos de cardinalidade, um usuário pode atuar como cliente em vários
+agendamentos e também como administrador em vários atendimentos. Cada agendamento
+pode conter um ou mais serviços por meio da tabela `appointment_services`. Além
+disso, a disponibilidade operacional dos administradores é modelada em dois níveis:
+uma capacidade semanal padrão em `admin_weekly_capacity` e ajustes pontuais por
+data em `admin_daily_override`.
 
 ## 🔐 Autenticação e Autorização
 
 - Autenticação baseada em JWT
 
 - Login via e-mail e senha
+
+- Login social com Google
 
 - Controle de acesso baseado em role (admin | user)
 
@@ -110,7 +133,7 @@ src/
 │   ├── auth_dependencies.py
 │   └── pagination_dependencies.py
 │
-├── enums/                 
+├── enums/
 │   ├── user_role.py
 │   ├── appointment_status.py
 │   ├── appointment_weekday.py

@@ -13,7 +13,8 @@ from enums import UserRole
 from enums.auth_provider import AuthProvider
 
 if TYPE_CHECKING:
-    from models.admin_daily_limit_model import AdminDailyLimitModel
+    from models.admin_daily_override_model import AdminDailyOverrideModel
+    from models.admin_weekly_capacity_model import AdminWeeklyCapacityModel
     from models.appointment_model import AppointmentModel
 
 
@@ -30,7 +31,7 @@ class UserModel(Base):
         default=AuthProvider.LOCAL,
     )
     email: Mapped[str] = mapped_column(
-        String(150),
+        String(255),
         nullable=False,
         unique=True,
         index=True,
@@ -39,7 +40,14 @@ class UserModel(Base):
         String(255), nullable=True
     )
     role: Mapped[UserRole] = mapped_column(
-        Enum(UserRole, name="user_role"), nullable=False
+        Enum(
+            UserRole,
+            name="user_role",
+            values_callable=lambda values: [
+                status.value for status in values
+            ],
+        ),
+        nullable=False,
     )
     phone: Mapped[str] = mapped_column(String(20), nullable=False)
     created_at: Mapped[datetime] = mapped_column(
@@ -52,8 +60,16 @@ class UserModel(Base):
         onupdate=func.now(),
     )
 
-    admin_daily_limits: Mapped[List["AdminDailyLimitModel"]] = relationship(
-        back_populates="admin",
+    admin_weekly_capacity: Mapped[List["AdminWeeklyCapacityModel"]] = (
+        relationship(
+            back_populates="admin",
+        )
+    )
+
+    admin_daily_override: Mapped[List["AdminDailyOverrideModel"]] = (
+        relationship(
+            back_populates="admin",
+        )
     )
 
     client_appointments: Mapped[List["AppointmentModel"]] = relationship(

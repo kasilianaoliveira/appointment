@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, timezone
 
 import jwt
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import HTTPBearer
 from pwdlib import PasswordHash
 
 from core.settings import get_settings
@@ -10,7 +10,7 @@ settings = get_settings()
 
 password_hash = PasswordHash.recommended()
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+oauth2_scheme = HTTPBearer(auto_error=True)
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:

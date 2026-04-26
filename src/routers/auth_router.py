@@ -32,7 +32,9 @@ async def login(
     return token_data
 
 
-@auth_public_router.get("/me", response_model=UserRead, status_code=status.HTTP_200_OK)
+@auth_public_router.get(
+    "/me", response_model=UserRead, status_code=status.HTTP_200_OK
+)
 async def get_me(
     current_user: Annotated[UserModel, Depends(get_current_user)],
 ):

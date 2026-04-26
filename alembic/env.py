@@ -17,11 +17,18 @@ from core.db.base import Base
 from core.settings import get_settings
 
 # Importar todos os modelos para que o Alembic possa detectá-los
-from models.user_model import UserModel  # noqa: F401
-from models.service_model import ServiceModel  # noqa: F401
+from models.admin_daily_override_model import (  # noqa: F401
+    AdminDailyOverrideModel,
+)
+from models.admin_weekly_capacity_model import (  # noqa: F401
+    AdminWeeklyCapacityModel,
+)
 from models.appointment_model import AppointmentModel  # noqa: F401
-from models.appointment_service_model import AppointmentServiceModel  # noqa: F401
-from models.admin_daily_limit_model import AdminDailyLimitModel  # noqa: F40
+from models.appointment_service_model import (  # noqa: F401
+    AppointmentServiceModel,
+)
+from models.service_model import ServiceModel  # noqa: F401
+from models.user_model import UserModel  # noqa: F401
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

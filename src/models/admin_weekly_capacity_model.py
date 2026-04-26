@@ -9,13 +9,14 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from core.db.base import Base
 from enums import WeekDay
+from models.constants import USER_ID_FOREIGN_KEY
 
 if TYPE_CHECKING:
     from models.user_model import UserModel
 
 
-class AdminDailyLimitModel(Base):
-    __tablename__ = "admin_daily_limits"
+class AdminWeeklyCapacityModel(Base):
+    __tablename__ = "admin_weekly_capacity"
 
     id: Mapped[UUID] = mapped_column(
         PG_UUID(as_uuid=True), primary_key=True, default=uuid4, index=True
@@ -23,18 +24,24 @@ class AdminDailyLimitModel(Base):
 
     admin_id: Mapped[UUID] = mapped_column(
         PG_UUID(as_uuid=True),
-        ForeignKey("users.id"),
+        ForeignKey(USER_ID_FOREIGN_KEY),
         nullable=False,
         index=True,
     )
     week_day: Mapped[WeekDay] = mapped_column(
-        Enum(WeekDay, name="week_day"), nullable=False
+        Enum(
+            WeekDay,
+            name="week_day",
+            values_callable=lambda values: [day.value for day in values],
+        ),
+        nullable=False,
+        index=True,
     )
     limit: Mapped[int] = mapped_column(Integer, nullable=False)
 
     admin: Mapped["UserModel"] = relationship(
         foreign_keys=[admin_id],
-        back_populates="admin_daily_limits",
+        back_populates="admin_weekly_capacity",
     )
 
     __table_args__ = (

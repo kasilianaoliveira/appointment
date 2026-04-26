@@ -56,6 +56,9 @@ class Settings(BaseSettings):
     RESEND_FROM_EMAIL: str = (
         "Agendamentos KL FixByte <contato@klfixbyte.com.br>"
     )
+    RESEND_TEMPLATE_SIGNUP_SUCCESS: str | None = None
+    RESEND_TEMPLATE_PASSWORD_RESET: str | None = None
+    RESEND_TEMPLATE_APPOINTMENT_COMPLETED: str | None = None
 
     # MinIO / S3 Storage
     MINIO_ENDPOINT: str = "localhost"

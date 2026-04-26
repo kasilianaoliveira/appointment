@@ -1,18 +1,70 @@
+import resend
+
 from core.settings import get_settings
-from fastapi_mail import FastMail, ConnectionConfig
 
-settings = get_settings()
 
-conf = ConnectionConfig(
-    MAIL_USERNAME=settings.MAIL_USERNAME,
-    MAIL_PASSWORD=settings.MAIL_PASSWORD.get_secret_value(),
-    MAIL_FROM=settings.MAIL_FROM,
-    MAIL_FROM_NAME=settings.MAIL_FROM_NAME,
-    MAIL_SERVER=settings.MAIL_SERVER,
-    MAIL_PORT=settings.MAIL_PORT,
-    MAIL_STARTTLS=settings.MAIL_STARTTLS,
-    MAIL_SSL_TLS=settings.MAIL_SSL_TLS,
-    USE_CREDENTIALS=True,
-)
+def _get_resend_api_key() -> str:
+    """Obtém a API key do Resend do ambiente ou das configurações."""
 
-fm = FastMail(conf)
+    settings = get_settings()
+    if settings.RESEND_API_KEY:
+        return settings.RESEND_API_KEY.get_secret_value()
+
+    raise ValueError(
+        "RESEND_API_KEY não está configurada. "
+        "Defina a variável de ambiente RESEND_API_KEY ou adicione no arquivo .env"
+    )
+
+
+def _init_resend():
+    """Inicializa a API key do Resend."""
+    try:
+        resend.api_key = _get_resend_api_key()
+    except ValueError:
+        # Não falha na importação, apenas quando tentar enviar
+        pass
+
+
+def send_signup_success_email(to: str, user_name: str):
+    settings = get_settings()
+
+    if not settings.RESEND_TEMPLATE_SIGNUP_SUCCESS:
+        raise ValueError("RESEND_TEMPLATE_SIGNUP_SUCCESS não configurado")
+
+    return send_email(
+        to=to,
+        template_id=settings.RESEND_TEMPLATE_SIGNUP_SUCCESS,
+        template_variables={
+            "USER_NAME": user_name,
+        },
+    )
+
+
+def send_email(
+    to: str,
+    subject: str | None = None,
+    from_email: str | None = None,
+    template_id: str | None = None,
+    template_variables: dict | None = None,
+) -> resend.Emails.SendResponse:
+    if not resend.api_key:
+        resend.api_key = _get_resend_api_key()
+
+    settings = get_settings()
+    params: resend.Emails.SendParams = {
+        "from": from_email or settings.RESEND_FROM_EMAIL,
+        "to": to,
+    }
+
+    if template_id:
+        params["template"] = {
+            "id": template_id,
+            "variables": template_variables or {},
+        }
+        if subject:
+            params["subject"] = subject
+
+    return resend.Emails.send(params)
+
+
+_init_resend()

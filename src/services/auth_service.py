@@ -5,6 +5,7 @@ from fastapi import Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.db.dependencies import get_session
+from core.mail import send_signup_success_email
 from core.security import create_access_token, verify_password
 from core.settings import get_settings
 from enums import UserRole
@@ -103,6 +104,17 @@ class AuthService:
             )
             existing_user = await self.user_repository.save(user_model)
             logger.info(f"New user created with Google OAuth: {existing_user}")
+
+            try:
+                send_signup_success_email(
+                    to=existing_user.email,
+                    user_name=existing_user.name,
+                )
+            except Exception as exc:
+                logger.exception(
+                    f"Failed to send signup success email to {existing_user.email}",
+                    exc_info=exc,
+                )
 
         token, expires_in = create_access_token({"sub": str(existing_user.id)})
         return TokenSchema(

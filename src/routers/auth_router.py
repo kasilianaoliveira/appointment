@@ -1,9 +1,18 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    Request,
+    Response,
+    status,
+)
 from fastapi.security import OAuth2PasswordRequestForm
+from starlette.responses import RedirectResponse
 
 from core.oauth import oauth
+from core.security import AUTH_COOKIE_NAME
 from core.settings import get_settings
 from src.dependencies.auth_dependencies import get_current_user
 from src.models import UserModel
@@ -21,6 +30,7 @@ settings = get_settings()
     status_code=status.HTTP_200_OK,
 )
 async def login(
+    response: Response,
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     service: Annotated[AuthService, Depends(get_auth_service)],
 ):
@@ -28,6 +38,15 @@ async def login(
     token_data = await service.authenticate_user(
         form_data.username,
         form_data.password,
+    )
+    response.set_cookie(
+        key=AUTH_COOKIE_NAME,
+        value=token_data.access_token,
+        httponly=True,
+        secure=False,
+        samesite="lax",
+        max_age=token_data.expires_in,
+        path="/",
     )
     return token_data
 
@@ -75,4 +94,20 @@ async def google_callback(
         )
     name = claims.get("name")
 
-    return await auth_service.authenticate_google_user(email=email, name=name)
+    auth_result = await auth_service.authenticate_google_user(
+        email=email, name=name
+    )
+    response = RedirectResponse(
+        url=settings.FRONTEND_URL,
+        status_code=status.HTTP_302_FOUND,
+    )
+    response.set_cookie(
+        key=AUTH_COOKIE_NAME,
+        value=auth_result.access_token,
+        httponly=True,
+        secure=False,
+        samesite="lax",
+        max_age=auth_result.expires_in,
+        path="/",
+    )
+    return response

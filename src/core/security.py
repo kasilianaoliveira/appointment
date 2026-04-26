@@ -10,7 +10,9 @@ settings = get_settings()
 
 password_hash = PasswordHash.recommended()
 
-oauth2_scheme = HTTPBearer(auto_error=True)
+AUTH_COOKIE_NAME = "access_token"
+
+oauth2_scheme = HTTPBearer(auto_error=False)
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:

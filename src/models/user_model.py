@@ -43,9 +43,7 @@ class UserModel(Base):
         Enum(
             UserRole,
             name="user_role",
-            values_callable=lambda values: [
-                status.value for status in values
-            ],
+            values_callable=lambda values: [status.value for status in values],
         ),
         nullable=False,
     )

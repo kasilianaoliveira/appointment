@@ -10,6 +10,7 @@ from core.exceptions import (
     UserAlreadyExistsException,
     UserNotFoundException,
 )
+from core.mail import send_signup_success_email
 from core.security import (
     get_password_hash,
 )
@@ -47,7 +48,20 @@ class UserService:
 
         logger.info(f"Creating user with email={user.email}")
 
-        return await self.user_repository.save(user_model)
+        created_user = await self.user_repository.save(user_model)
+
+        try:
+            send_signup_success_email(
+                to=created_user.email,
+                user_name=created_user.name,
+            )
+        except Exception as exc:
+            logger.exception(
+                f"Failed to send signup success email to {created_user.email}",
+                exc_info=exc,
+            )
+
+        return created_user
 
     async def update_user(self, id: UUID, user: UserUpdate) -> UserModel:
         existing_user = await self.user_repository.get_by_id(id)

@@ -53,16 +53,12 @@ class UserRepository(IUserRepository):
         email: str | None = None,
         date_filter: DateFilter | None = None,
     ) -> Page[UserModel]:
-        stmt = (
-            select(UserModel)
-            .order_by(UserModel.created_at)
-            .where(UserModel.role == UserRole.CLIENT)
-        )
+        stmt = select(UserModel).where(UserModel.role == UserRole.CLIENT)
 
         if name:
-            stmt = stmt.where(UserModel.name.ilike(f"{name}%"))
+            stmt = stmt.where(UserModel.name.ilike(f"%{name}%"))
         if email:
-            stmt = stmt.where(UserModel.email.ilike(f"{email}%"))
+            stmt = stmt.where(UserModel.email.like(f"{email}%"))
 
         if date_filter and date_filter in DATE_FILTERS:
             date_filter_timedelta = get_date_filter(date_filter)
@@ -70,4 +66,6 @@ class UserRepository(IUserRepository):
                 UserModel.created_at
                 >= datetime.now(UTC) - date_filter_timedelta
             )
+
+        stmt = stmt.order_by(UserModel.created_at)
         return await paginate(self.session, stmt, params)

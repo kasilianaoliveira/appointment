@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 from typing import Literal
-from urllib.parse import quote_plus
+from urllib.parse import quote_plus, urlsplit
 
 from pydantic import Field, SecretStr, computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -74,7 +74,7 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_SECRET: SecretStr = SecretStr("...")
     GOOGLE_REDIRECT_URI: str | None = None
     SECRET_KEY: SecretStr = SecretStr("...")
-    FRONTEND_URL: str = "http://localhost:3000/dashboard"
+    FRONTEND_URL: str = "http://localhost:5173/auth/google/callback"
 
     @computed_field
     def MINIO_URL(self) -> str:
@@ -114,6 +114,13 @@ class Settings(BaseSettings):
         )
 
         return f"redis://{password}{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
+
+    @computed_field
+    @property
+    def FRONTEND_ORIGIN(self) -> str:
+        """Frontend origin used for CORS."""
+        parsed = urlsplit(self.FRONTEND_URL)
+        return f"{parsed.scheme}://{parsed.netloc}"
 
 
 @lru_cache(maxsize=1)

@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi_pagination import add_pagination
+from starlette.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 
 from core.exceptions.error_handlers import register_error_handlers
@@ -25,6 +26,13 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title="Appointment",
         description="API for appointment services",
+    )
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[config.FRONTEND_ORIGIN],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
     )
     app.add_middleware(
         SessionMiddleware,  # ty:ignore[invalid-argument-type]
